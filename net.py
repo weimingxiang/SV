@@ -109,7 +109,7 @@ class IDENet(pl.LightningModule):
         #     nn.Conv2d(in_channels=5, out_channels=4, kernel_size=3, stride=1, padding=1),
         #     nn.Conv2d(in_channels=4, out_channels=3, kernel_size=3, stride=1, padding=1),
         # )
-        conv2d_dim = list(range(8, 3, -self.conv2d_dim_stride))
+        conv2d_dim = list(range(9, 3, -self.conv2d_dim_stride))
         conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
 
@@ -209,13 +209,13 @@ class IDENet(pl.LightningModule):
         self.test_dataset= Subset(input_data, test_indices)
 
     def train_dataloader(self):
-        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/2), shuffle=True) # sampler=self.wsampler)
+        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/4), shuffle=True) # sampler=self.wsampler)
 
     def val_dataloader(self):
-        return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/2))
+        return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/4))
 
     def test_dataloader(self):
-        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/2))
+        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/4))
 
     # @property
     # def automatic_optimization(self):

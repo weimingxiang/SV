@@ -60,12 +60,12 @@ else:
     all_negative_img = torch.empty(0, 3, hight, hight)
     all_positive_cigar_img = torch.empty(0, 3, hight, hight)
     all_negative_cigar_img = torch.empty(0, 3, hight, hight)
-    all_positive_img_id = torch.empty(0, 2, hight, hight)
-    all_negative_img_id = torch.empty(0, 2, hight, hight)
+    all_positive_img_mid = torch.empty(0, 3, hight, hight)
+    all_negative_img_mid = torch.empty(0, 3, hight, hight)
 
     # pool = Pool(2)
     for chromosome, chr_len in zip(chr_list, chr_length):
-        print("======= deal " + chromosome)
+        print("======= deal " + chromosome + " =======")
 
         print("position start")
         if os.path.exists(data_dir + 'position/' + chromosome + '/positive' + '.pt') and not position_enforcement_refresh:
@@ -133,8 +133,8 @@ else:
             # pool.close()
             t_positive_img = torch.load(data_dir + 'image/' + chromosome + '/positive_img' + '.pt')
             t_negative_img = torch.load(data_dir + 'image/' + chromosome + '/negative_img' + '.pt')
-            positive_img_id = torch.load(data_dir + 'image/' + chromosome + '/positive_img_id' + '.pt')
-            negative_img_id = torch.load(data_dir + 'image/' + chromosome + '/negative_img_id' + '.pt')
+            positive_img_mid = torch.load(data_dir + 'image/' + chromosome + '/positive_img_mid' + '.pt')
+            negative_img_mid = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mid' + '.pt')
 
 
         # if os.path.exists(data_dir + 'image_rd/' + chromosome + '/positive_img' + '.pt') and not enforcement_refresh:
@@ -165,8 +165,8 @@ else:
 
             positive_img = []
             negative_img = []
-            positive_img_id = torch.empty(len(p_position), 2, hight, hight)
-            negative_img_id = torch.empty(len(n_position), 2, hight, hight)
+            positive_img_mid = torch.empty(len(p_position), 3, hight, hight)
+            negative_img_mid = torch.empty(len(n_position), 3, hight, hight)
 
 
             # insert_chromosome = insert_result_data[insert_result_data["CHROM"] == chromosome]
@@ -201,13 +201,13 @@ else:
 
             for i, b_e in enumerate(p_position):
                 positive_img.append(chromosome_sign[:, b_e[0]:b_e[1]]) # dim 3
-                positive_img_id[i] = ut.to_img_id_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 2
+                positive_img_mid[i] = ut.to_img_id_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 2
                 print("===== finish(positive_img_id) " + chromosome + " " + str(i))
 
 
             for i, b_e in enumerate(n_position):
                 negative_img.append(chromosome_sign[:, b_e[0]:b_e[1]])
-                negative_img_id[i] = ut.to_img_id_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 2
+                negative_img_mid[i] = ut.to_img_id_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 2
                 print("===== finish(negative_img_id) " + chromosome + " " + str(i))
 
 
@@ -305,17 +305,17 @@ else:
         all_negative_img = torch.cat((all_negative_img, t_negative_img), 0)
         all_positive_cigar_img = torch.cat((all_positive_cigar_img, positive_cigar_img), 0)
         all_negative_cigar_img = torch.cat((all_negative_cigar_img, negative_cigar_img), 0)
-        all_positive_img_id = torch.cat((all_positive_img_id, positive_img_id), 0)
-        all_negative_img_id = torch.cat((all_negative_img_id, negative_img_id), 0)
+        all_positive_img_mid = torch.cat((all_positive_img_mid, positive_img_mid), 0)
+        all_negative_img_mid = torch.cat((all_negative_img_mid, negative_img_mid), 0)
 
-    all_p_img = torch.cat([all_positive_img, all_positive_img_id, all_positive_cigar_img], 1) # 3, 2, 3
-    all_n_img = torch.cat([all_negative_img, all_positive_img_id, all_negative_cigar_img], 1)
+    all_p_img = torch.cat([all_positive_img, all_positive_img_mid, all_positive_cigar_img], 1) # 3, 3, 3
+    all_n_img = torch.cat([all_negative_img, all_negative_img_mid, all_negative_cigar_img], 1)
 
     torch.save(all_p_img, data_dir + '/all_p_img' + '.pt')
     torch.save(all_n_img, data_dir + '/all_n_img' + '.pt')
 
 
-my_label = "8channel_predict_complex_attention_shuffle"
+my_label = "9channel_predict_complex_attention_shuffle"
 
 logger = TensorBoardLogger(os.path.join("/home/xwm/DeepSVFilter/code", "channel_predict"), name=my_label)
 

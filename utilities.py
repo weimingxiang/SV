@@ -1209,79 +1209,78 @@ def cigar_img_single_optimal_time2sapce(sam_file, chromosome, begin, end):
 #     return cigars_img
 
 
+# def cigar_MID(sam_file, chromosome):
+#     # print("======= cigar_img_single begin =========")
+#     read_length = []
+#     gap = "nan"
+#     # sam_file = pysam.AlignmentFile(bam_path, "rb")
 
-def cigar_MID(sam_file, chromosome):
-    # print("======= cigar_img_single begin =========")
-    read_length = []
-    gap = "nan"
-    # sam_file = pysam.AlignmentFile(bam_path, "rb")
+#     for read in sam_file.fetch(chromosome, begin, end):
 
-    for read in sam_file.fetch(chromosome, begin, end):
+#         if gap == "nan":
+#             gap = read.reference_start - begin
 
-        if gap == "nan":
-            gap = read.reference_start - begin
+#         read_list_terminal = 0
+#         empty = read.reference_start - begin
+#         if gap >= 0:
+#             read_list_terminal += empty
+#         else:
+#             read_list_terminal += empty - gap
 
-        read_list_terminal = 0
-        empty = read.reference_start - begin
-        if gap >= 0:
-            read_list_terminal += empty
-        else:
-            read_list_terminal += empty - gap
+#         for operation, length in read.cigar: # (operation{10 class}, length)
+#             if operation == 0 or operation == 1 or operation == 8:
+#                 read_list_terminal += length
 
-        for operation, length in read.cigar: # (operation{10 class}, length)
-            if operation == 0 or operation == 1 or operation == 8:
-                read_list_terminal += length
-
-        read_length.append(read_list_terminal)
+#         read_length.append(read_list_terminal)
 
 
-    if read_length:
-        # mean = np.mean(read_length)
-        # std = np.std(read_length)
-        # maximum = int(mean + 3 * std) # 提升图像信息量
-        maximum = np.max(read_length)
+#     if read_length:
+#         # mean = np.mean(read_length)
+#         # std = np.std(read_length)
+#         # maximum = int(mean + 3 * std) # 提升图像信息量
+#         maximum = np.max(read_length)
 
-        cigars_img = torch.zeros([3, len(read_length), maximum])
+#         cigars_img = torch.zeros([3, len(read_length), maximum])
 
-        for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
-            max_terminal = 0
+#         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
+#             max_terminal = 0
 
-            empty = read.reference_start - begin
-            if gap >= 0:
-                max_terminal = empty
-            else:
-                max_terminal = empty - gap
+#             empty = read.reference_start - begin
+#             if gap >= 0:
+#                 max_terminal = empty
+#             else:
+#                 max_terminal = empty - gap
 
-            for operation, length in read.cigar: # (operation{10 class}, length)
-                if operation == 0 or operation == 8:
-                    if max_terminal+length < maximum:
-                        cigars_img[0, i, max_terminal:max_terminal+length] = 255
-                        max_terminal += length
-                    else:
-                        cigars_img[0, i, max_terminal:] = 255
-                        break
-                elif operation == 1:
-                    if max_terminal+length < maximum:
-                        cigars_img[1, i, max_terminal:max_terminal+length] = 255
-                        max_terminal += length
-                    else:
-                        cigars_img[1, i, max_terminal:] = 255
-                        break
-                elif operation == 2:
-                    if max_terminal+length < maximum:
-                        cigars_img[2, i, max_terminal:max_terminal+length] = 255
-                        max_terminal += length
-                    else:
-                        cigars_img[2, i, max_terminal:] = 255
-                        break
+#             for operation, length in read.cigar: # (operation{10 class}, length)
+#                 if operation == 0 or operation == 8:
+#                     if max_terminal+length < maximum:
+#                         cigars_img[0, i, max_terminal:max_terminal+length] = 255
+#                         max_terminal += length
+#                     else:
+#                         cigars_img[0, i, max_terminal:] = 255
+#                         break
+#                 elif operation == 1:
+#                     if max_terminal+length < maximum:
+#                         cigars_img[1, i, max_terminal:max_terminal+length] = 255
+#                         max_terminal += length
+#                     else:
+#                         cigars_img[1, i, max_terminal:] = 255
+#                         break
+#                 elif operation == 2:
+#                     if max_terminal+length < maximum:
+#                         cigars_img[2, i, max_terminal:max_terminal+length] = 255
+#                         max_terminal += length
+#                     else:
+#                         cigars_img[2, i, max_terminal:] = 255
+#                         break
 
-        cigars_img = resize(cigars_img)
-    else:
-        cigars_img = torch.zeros([3, hight, hight])
+#         cigars_img = resize(cigars_img)
+#     else:
+#         cigars_img = torch.zeros([3, hight, hight])
 
-    # sam_file.close()
-    # print("======= to input image end =========")
-    return cigars_img
+#     # sam_file.close()
+#     # print("======= to input image end =========")
+#     return cigars_img
 
 
 
@@ -1291,7 +1290,7 @@ def to_img_id_single(img, hight = 224):
     img = torch.maximum(img.float(), torch.tensor(0))
 
     pic_length = img.size()
-    im = torch.zeros(2, pic_length[-1], hight)
+    im = torch.zeros(3, pic_length[-1], hight)
 
     for x in range(pic_length[-1]):
         y = img[:, x].int()
