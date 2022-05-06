@@ -99,12 +99,10 @@ def p(sum_data):
     p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
     n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
 
-
-    mid_sign = process(bam_path, chromosome, chr_len, data_dir)
-    torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mid_sign.pt")
+    mid_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + "_mid_sign.pt")
     # mid_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + "_id_sign.pt")
-    positive_img_id = torch.empty(len(p_position), 2, hight, hight)
-    negative_img_id = torch.empty(len(n_position), 2, hight, hight)
+    positive_img_id = torch.empty(len(p_position), 3, hight, hight)
+    negative_img_id = torch.empty(len(n_position), 3, hight, hight)
 
     for i, b_e in enumerate(p_position):
         positive_img_id[i] = ut.to_img_id_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 2
