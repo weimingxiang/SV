@@ -22,7 +22,7 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
     TuneReportCheckpointCallback
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 seed_everything(2022)
@@ -58,10 +58,12 @@ if os.path.exists(data_dir + '/all_p_img' + '.pt') and not all_enforcement_refre
 else:
     all_positive_img = torch.empty(0, 3, hight, hight)
     all_negative_img = torch.empty(0, 3, hight, hight)
-    all_positive_cigar_img = torch.empty(0, 3, hight, hight)
-    all_negative_cigar_img = torch.empty(0, 3, hight, hight)
+
     all_positive_img_mid = torch.empty(0, 3, hight, hight)
     all_negative_img_mid = torch.empty(0, 3, hight, hight)
+
+    all_positive_cigar_img = torch.empty(0, 7, hight, hight)
+    all_negative_cigar_img = torch.empty(0, 7, hight, hight)
 
     # pool = Pool(2)
     for chromosome, chr_len in zip(chr_list, chr_length):
@@ -244,8 +246,8 @@ else:
             # end 从头跑程序需注释
         else:
             sam_file = pysam.AlignmentFile(bam_path, "rb")
-            positive_cigar_img = torch.empty(len(p_position), 3, hight, hight)
-            negative_cigar_img = torch.empty(len(n_position), 3, hight, hight)
+            positive_cigar_img = torch.empty(len(p_position), 7, hight, hight)
+            negative_cigar_img = torch.empty(len(n_position), 7, hight, hight)
             for i, b_e in enumerate(p_position):
                 #f positive_cigar_img = torch.cat((positive_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
                 try:
