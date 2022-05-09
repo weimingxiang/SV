@@ -109,7 +109,7 @@ class IDENet(pl.LightningModule):
         #     nn.Conv2d(in_channels=5, out_channels=4, kernel_size=3, stride=1, padding=1),
         #     nn.Conv2d(in_channels=4, out_channels=3, kernel_size=3, stride=1, padding=1),
         # )
-        conv2d_dim = list(range(9, 3, -self.conv2d_dim_stride))
+        conv2d_dim = list(range(13, 3, -self.conv2d_dim_stride))
         conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
 

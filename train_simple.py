@@ -4,28 +4,11 @@ import pandas as pd
 import random
 import numpy as np
 import torch
-from pytorch_lightning.loggers import TensorBoardLogger
 import os
-from net import IDENet
-import pytorch_lightning as pl
-from pytorch_lightning import seed_everything
-from pytorch_lightning.callbacks import ModelCheckpoint
 from multiprocessing import Pool, cpu_count
 import pysam
-import ray
-from ray import tune
-from ray.tune import CLIReporter
-from ray.tune.suggest import Repeater
-from ray.tune.schedulers import ASHAScheduler, PopulationBasedTraining
-from ray.tune.suggest.hyperopt import HyperOptSearch
-from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
-    TuneReportCheckpointCallback
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
-
-
-seed_everything(2022)
 
 data_dir = "../datasets/NA12878_PacBio_MtSinai/"
 
@@ -42,8 +25,8 @@ sam_file.close()
 
 hight = 224
 
-all_p_img = torch.zeros(22199, 3+3+9, hight, hight)
-all_n_img = torch.zeros(22199, 3+3+9, hight, hight)
+all_p_img = torch.empty(22199, 3+3+7, hight, hight)
+all_n_img = torch.empty(22199, 3+3+7, hight, hight)
 
 index = 0
 
@@ -51,10 +34,6 @@ index = 0
 for chromosome, chr_len in zip(chr_list, chr_length):
     print("======= deal " + chromosome + " =======")
 
-    print("position start")
-    p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
-    n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
-    print("position end")
 
     print("img start")
     t_positive_img = torch.load(data_dir + 'image/' + chromosome + '/positive_img' + '.pt') # 3
@@ -65,12 +44,10 @@ for chromosome, chr_len in zip(chr_list, chr_length):
 
     # img/positive_cigar_img
     print("cigar start")
-    positive_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/positive_cigar_img' + '.pt') # 3
+    positive_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/positive_cigar_img' + '.pt') # 7
     negative_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/negative_cigar_img' + '.pt')
-    positive_cigar_img6 = torch.load(data_dir + 'image6/' + chromosome + '/positive_cigar_img' + '.pt') # 6
-    negative_cigar_img6 = torch.load(data_dir + 'image6/' + chromosome + '/negative_cigar_img' + '.pt')
-    positive_cigar_img = torch.cat([positive_cigar_img, positive_cigar_img6], 1)
-    negative_cigar_img = torch.cat([negative_cigar_img, negative_cigar_img6], 1)
+    # positive_cigar_img = torch.cat([positive_cigar_img, positive_cigar_img6], 1)
+    # negative_cigar_img = torch.cat([negative_cigar_img, negative_cigar_img6], 1)
     print("cigar end")
 
     length = len(t_positive_img)
