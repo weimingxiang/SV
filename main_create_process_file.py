@@ -10,13 +10,8 @@ import numpy as np
 import torchvision
 import math
 import torch
-import matplotlib.pyplot as plt
-from pytorch_lightning.loggers import TensorBoardLogger
 import os
-from net import IDENet
-import pytorch_lightning as pl
 from pytorch_lightning import seed_everything
-from pytorch_lightning.callbacks import ModelCheckpoint
 from multiprocessing import Pool, cpu_count
 import pysam
 
@@ -40,7 +35,7 @@ hight = 224
 
 data_list = []
 for chromosome, chr_len in zip(chr_list, chr_length):
-    if not os.path.exists(data_dir + 'flag/' + chromosome + '.1txt'):
+    if not os.path.exists(data_dir + 'flag/' + chromosome + '.txt'):
         data_list.append((chromosome, chr_len))
 
 

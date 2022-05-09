@@ -6,7 +6,6 @@ import numpy as np
 import torchvision
 import math
 import torch
-import matplotlib.pyplot as plt
 from pytorch_lightning.loggers import TensorBoardLogger
 import os
 from net import IDENet
@@ -53,9 +52,9 @@ def process(bam_path, chromosome, pic_length, data_dir):
 
     # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    conjugate_m = torch.zeros(pic_length, dtype=torch.int)
-    conjugate_i = torch.zeros(pic_length, dtype=torch.int)
-    conjugate_d = torch.zeros(pic_length, dtype=torch.int)
+    # conjugate_m = torch.zeros(pic_length, dtype=torch.int)
+    conjugate_i = [[0] for _ in range(pic_length)]
+    # conjugate_d = torch.zeros(pic_length, dtype=torch.int)
     # match_count = torch.zeros(pic_length, dtype=torch.int)
     # mismatch_count = torch.zeros(pic_length, dtype=torch.int)
     # bam_op_count = torch.zeros([9, pic_length], dtype=torch.int)
@@ -63,8 +62,8 @@ def process(bam_path, chromosome, pic_length, data_dir):
     for read in sam_file.fetch(chromosome):
         if read.is_unmapped:
             continue
-        start, end = (read.reference_start, read.reference_end)
-        if start % 100 == 0:
+        start = read.reference_start
+        if start % 5000 == 0:
             print(str(chromosome) + " " + str(start))
 
         # ref_read = chr_string[start:end]
@@ -76,48 +75,32 @@ def process(bam_path, chromosome, pic_length, data_dir):
             if operation == 3 or operation == 7 or operation == 8:
                 reference_index += length
             elif operation == 0:
-                conjugate_m[reference_index:reference_index + length] += 1
                 reference_index += length
             elif operation == 1:
-                conjugate_i[reference_index] += length
+                conjugate_i[reference_index].append(length)
             elif operation == 2:
-                conjugate_d[reference_index:reference_index + length] += 1
                 reference_index += length
 
     sam_file.close()
 
     # rd_count = MaxMinNormalization(rd_count)  # The scope of rd_count value is [0, 1]
 
-    return torch.cat([conjugate_m.unsqueeze(0), conjugate_i.unsqueeze(0), conjugate_d.unsqueeze(0)], 0)
+    return conjugate_i
 
 def p(sum_data):
     chromosome, chr_len = sum_data
 
     # copy begin
     print("deal " + chromosome)
-
-    p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
-    n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
-
-    mid_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + "_mid_sign.pt")
-    # mid_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + "_id_sign.pt")
-    positive_img_id = torch.empty(len(p_position), 3, hight, hight)
-    negative_img_id = torch.empty(len(n_position), 3, hight, hight)
-
-    for i, b_e in enumerate(p_position):
-        positive_img_id[i] = ut.to_img_id_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 2
-        print("===== finish(positive_img_id) " + chromosome + " " + str(i))
-
-
-    for i, b_e in enumerate(n_position):
-        negative_img_id[i] = ut.to_img_id_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 2
-        print("===== finish(negative_img_id) " + chromosome + " " + str(i))
-    save_path = data_dir + 'image/' + chromosome
-    torch.save(positive_img_id, save_path + '/positive_img_mid' + '.pt')
-    torch.save(negative_img_id, save_path + '/negative_img_mid' + '.pt')
+    # mid_sign_list = process(bam_path, chromosome, chr_len, data_dir)
+    mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+    # torch.save(mid_sign_list, data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+    mid_sign_img = ut.mid_list2img(mid_sign_list, chromosome)
+    ut.mymkdir(data_dir + "chromosome_img/")
+    torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
 
     # copy end
-    torch.save(1, data_dir + 'flag/' + chromosome + '.1txt')
+    torch.save(1, data_dir + 'flag/' + chromosome + '.txt')
 
 
 

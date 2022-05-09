@@ -18,25 +18,72 @@ import time
 hight = 224
 resize = torchvision.transforms.Resize([hight, hight])
 
-# 返回 x 在 arr 中的索引，如果不存在返回 -1
-def binarySearch(arr, x):
-    if len(arr) == 0:
-        return -1
+# # 通过pos计算值
+# def pos2value(lis, pos):
+#     pos_float = pos - int(pos)
+#     x1 = lis[int(pos)] * (1 - pos_float)
+#     x2 = lis[int(pos) + 1] * pos_float
+#     return x1 + x2
 
-    l = 0
-    r = len(arr) - 1
+# #计算上下四分位数
+# #计算上下边缘
+# #计算中位数
+# def count_quartiles_median(lis):
+#     length = float(len(lis)) - 1
+#     q1 = length / 4
+#     q3 = length * 3 / 4
+#     q4 = q3 + 1.5 * (q3 - q1)
+#     q = q1 - 1.5 * (q3 - q1)
+#     q2 = length / 2  # 中位数
+#     return pos2value(lis, q), pos2value(lis, q1), pos2value(lis, q2), pos2value(lis, q3), pos2value(lis, q4)
 
-    while l < r:
-        mid = int(l + (r - l)/2)
-        if arr[mid] == x:
-            return 1
-        elif arr[mid] > x:
-            r = mid-1
-        # 元素大于中间位置的元素，只需要再比较右边的元素
-        else:
-            l = mid+1
+def get_rms(records):
+    """
+    均方根值 反映的是有效值而不是平均值
+    """
+    return np.sqrt(sum([x ** 2 for x in records]) / len(records))
 
-    return 0
+def get_gm(records):
+    """
+    几何平均
+    """
+    return (np.prod(records)) ** (1 / len(records))
+
+def get_hm(records):
+    """
+    调和平均
+    """
+    records = records + 1e-100
+    return len(records) / sum([1 / x for x in records])
+
+def get_cv(records): #标准分和变异系数
+    mean = np.mean(records)
+    std = np.std(records)
+    cv = std / mean
+    return mean, std, cv
+
+def mid_list2img(mid_sign_list, chromosome):
+    mid_sign_img = torch.zeros(len(mid_sign_list), 12)
+    for i, mid_sign in enumerate(mid_sign_list):
+        if i % 50000 == 0:
+            print(str(chromosome) + "\t" + str(i))
+        mid_sign_img[i, 7] = len(mid_sign)
+        if mid_sign_img[i, 7] == 1:
+            continue
+        mid_sign = np.array(mid_sign)
+        mid_sign_img[i, 0], mid_sign_img[i, 1], mid_sign_img[i, 2], mid_sign_img[i, 3], mid_sign_img[i, 4] = np.quantile(mid_sign, [0, 0.25, 0.5, 0.75, 1], interpolation='linear')
+        # mid_sign_img[i, 0], mid_sign_img[i, 1], mid_sign_img[i, 2], mid_sign_img[i, 3], mid_sign_img[i, 4] = count_quartiles_median(mid_sign) # 四分位
+        # mid_sign_img[i, 5] = np.mean(mid_sign)
+        # mid_sign_img[i, 6] = np.std(mid_sign)
+        # mid_sign_img[i, 7] = len(mid_sign)
+        mid_sign_img[i, 8] = get_rms(mid_sign)
+        mid_sign_img[i, 9] = get_gm(mid_sign)
+        mid_sign_img[i, 10] = get_hm(mid_sign)
+        mid_sign_img[i, 5], mid_sign_img[i, 6], mid_sign_img[i, 11] = get_cv(mid_sign)
+
+
+    return mid_sign_img
+
 
 
 def mymkdir(mydir):
@@ -279,7 +326,7 @@ def cigar_img_single_optimal(sam_file, chromosome, begin, end):
         maximum = int(mean + 3 * std) # 提升图像信息量
         # maximum = np.max(read_length)
 
-        cigars_img = torch.zeros([7, len(read_length), maximum])
+        cigars_img = torch.zeros([5, len(read_length), maximum])
 
         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
             max_terminal = 0
@@ -328,15 +375,12 @@ def cigar_img_single_optimal(sam_file, chromosome, begin, end):
                         break
                 elif operation == 8:
                     if max_terminal+length < maximum:
-                        cigars_img[5, i, max_terminal:max_terminal+length] = 255
                         max_terminal += length
                     else:
-                        cigars_img[5, i, max_terminal:] = 255
                         break
-        cigars_img[6] = cigars_img[0] + cigars_img[5]
         cigars_img = resize(cigars_img)
     else:
-        cigars_img = torch.zeros([7, hight, hight])
+        cigars_img = torch.zeros([5, hight, hight])
 
     # sam_file.close()
     # print("======= to input image end =========")
