@@ -36,6 +36,7 @@ def draw_insertion(bam_path, chromosome, pic_length, data_dir):
     conjugate_m = torch.zeros(pic_length, dtype=torch.int)
     conjugate_i = torch.zeros(pic_length, dtype=torch.int)
     conjugate_d = torch.zeros(pic_length, dtype=torch.int)
+    conjugate_i_list = [[0] for _ in range(pic_length)]
     # match_count = torch.zeros(pic_length, dtype=torch.int)
     # mismatch_count = torch.zeros(pic_length, dtype=torch.int)
     # bam_op_count = torch.zeros([9, pic_length], dtype=torch.int)
@@ -68,6 +69,7 @@ def draw_insertion(bam_path, chromosome, pic_length, data_dir):
                 reference_index += length
             elif operation == 1:
                 conjugate_i[reference_index] += length
+                conjugate_i_list[reference_index].append(length)
             elif operation == 2:
                 conjugate_d[reference_index:reference_index + length] += 1
                 reference_index += length
@@ -83,7 +85,7 @@ def draw_insertion(bam_path, chromosome, pic_length, data_dir):
 
     # rd_count = MaxMinNormalization(rd_count)  # The scope of rd_count value is [0, 1]
 
-    return torch.cat([split_read_left.unsqueeze(0), split_read_right.unsqueeze(0), rd_count.unsqueeze(0)],0), torch.cat([conjugate_m.unsqueeze(0), conjugate_i.unsqueeze(0), conjugate_d.unsqueeze(0)], 0)
+    return torch.cat([split_read_left.unsqueeze(0), split_read_right.unsqueeze(0), rd_count.unsqueeze(0)],0), torch.cat([conjugate_m.unsqueeze(0), conjugate_i.unsqueeze(0), conjugate_d.unsqueeze(0)], 0), conjugate_i_list
 
 
 def trans2img(bam_path, chromosome, chr_len, data_dir):
