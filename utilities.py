@@ -120,10 +120,12 @@ def to_input_image(imgs, rd_depth_mean, hight = 112):
     return ims
 
 class IdentifyDataset(torch.utils.data.Dataset):
-    def __init__(self, positive_img, negative_img):
+    def __init__(self, positive_img, negative_img, p_list, n_list):
 
         self.positive_img = positive_img
         self.negative_img = negative_img
+        self.p_list = p_list
+        self.n_list = n_list
 
         # self._positive_img = to_input_image(positive_img, rd_depth_mean)
         # self._negative_img = to_input_image(negative_img, rd_depth_mean)
@@ -135,9 +137,9 @@ class IdentifyDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         if index % 2 ==0:
-            return self.positive_img[int(index / 2)], 1
+            return (self.positive_img[int(index / 2)], self.p_list), 1
         else:
-            return self.negative_img[int(index / 2)], 0
+            return (self.negative_img[int(index / 2)], self.n_list), 0
 
 
 def MaxMinNormalization(x):
@@ -1516,7 +1518,7 @@ def cigar_img_single_optimal(sam_file, chromosome, begin, end):
 
 
 
-def to_img_id_single(img, hight = 224):
+def to_img_mid_single(img, hight = 224):
     # print("======= to id image begin =========")
 
     img = torch.maximum(img.float(), torch.tensor(0))

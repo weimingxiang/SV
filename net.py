@@ -12,10 +12,27 @@ import torch.distributions.multivariate_normal as mn
 from torch.utils.data import DataLoader, WeightedRandomSampler, Subset
 import torchvision
 import math
-from utilities import IdentifyDataset
+import utilities as ut
 from pudb import set_trace
 from multiprocessing import Pool, cpu_count
 import random
+
+class MultiLP(nn.Module):
+    def __init__(self, full_dim):
+        super(MultiLP, self).__init__()
+        dim1 = full_dim[:-1]
+        dim2 = full_dim[1:]
+        self.layers=nn.ModuleList(
+            nn.Sequential(
+                nn.Linear(k, m),
+                nn.ReLU(),
+            ) for k, m in zip(dim1, dim2)
+        )
+    def forward(self,x):
+        out=x
+        for i,layer in enumerate(self.layers):
+            out=layer(out)
+        return out
 
 class classfication(nn.Module):
     def __init__(self, full_dim):
@@ -89,7 +106,7 @@ class conv2ds_sequential(nn.Module):
 
 class IDENet(pl.LightningModule):
 
-    def __init__(self, positive_img, negative_img, config):
+    def __init__(self, positive_img, negative_img, p_list, n_list, config):
         super(IDENet, self).__init__()
 
         self.lr = config["lr"]
@@ -100,6 +117,8 @@ class IDENet(pl.LightningModule):
 
         self.positive_img = positive_img
         self.negative_img = negative_img
+        self.p_list = p_list
+        self.n_list = n_list
 
         # self.conv2ds = nn.Sequential(
         #     nn.Conv2d(in_channels=9, out_channels=8, kernel_size=3, stride=1, padding=1),
@@ -123,24 +142,58 @@ class IDENet(pl.LightningModule):
         self.classfication = attention_classfication(full_dim)
 
         self.softmax = nn.Sequential(
-            nn.Linear(full_dim[-1], 2),
+            nn.Linear(full_dim[-1] + 2, 2),
             nn.Softmax(1)
         )
 
         self.criterion = nn.CrossEntropyLoss()
 
 
+        full_dim = [12, 6, 3, 1]
+        self.fullconnect = MultiLP(full_dim)
+
+        self.lstm_layer=torch.nn.LSTM(input_size=12, hidden_size=10, num_layers=5, bias=True,batch_first=True,dropout=0.2,bidirectional=False)
+
+        self.pool = nn.MaxPool1d(2, stride=2)
+
+        full_dim = [12, 12, 24, 24]
+        self.albert_fullconnect = MultiLP(full_dim)
+
     def training_step(self, batch, batch_idx):
-        x, y = batch
-        y_t = torch.empty(0, 2)
-        for y_item in y:
+        (x, x2), y = batch  # x2(length, 12)
+        x_sm = torch.empty(len(x2), 2)
+        x_lstm = torch.empty(len(x2), 10 * 5) # hidden_size * num_layers
+        # sum and max
+        for i, xx in enumerate(x2):
+            xx = self.fullconnect(xx)
+            x_sm[i][0] = torch.sum(xx)
+            x_sm[i][1] = torch.max(xx)
+        # while len(xx)  池化小于最大长度后使用albert
+        for i, xx in enumerate(x2):
+            xx = self.albert_fullconnect(xx).t()
+            while len(xx) > 512:
+                xx = self.pool(xx)
+
+
+        # 直接使用LSTM
+        for i, xx in enumerate(x2):
+            x_lstm[i] = self.lstm_layer(xx.unsqueeze(0)).reshape(-1)
+
+
+
+        y_t = torch.empty(len(y), 2)
+        for i, y_item in enumerate(y):
             if y_item == 0:
-                y_t = torch.cat((y_t, torch.tensor([1, 0]).unsqueeze(0)),0)
+                y_t[i] = torch.tensor([1, 0])
             else:
-                y_t = torch.cat((y_t, torch.tensor([0, 1]).unsqueeze(0)),0)
+                y_t[i] = torch.tensor([0, 1])
+
+
+
         x = self.conv2ds(x)
         y_hat = self.resnet_model(x)
         y_hat = self.classfication(y_hat)
+        y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
         loss = self.criterion(y_hat, y_t.cuda())
 
@@ -198,7 +251,7 @@ class IDENet(pl.LightningModule):
     def prepare_data(self):
 
         train_proportion = 0.8
-        input_data = IdentifyDataset(self.positive_img, self.negative_img)
+        input_data = ut.IdentifyDataset(self.positive_img, self.negative_img, self.p_list, self.n_list)
         dataset_size = len(input_data)
         indices = list(range(dataset_size))
         split = int(np.floor(train_proportion * dataset_size))
