@@ -16,6 +16,7 @@ import utilities as ut
 from pudb import set_trace
 from multiprocessing import Pool, cpu_count
 import random
+from transformers import AlbertModel
 
 class MultiLP(nn.Module):
     def __init__(self, full_dim):
@@ -137,43 +138,65 @@ class IDENet(pl.LightningModule):
         # self.attention = attention(1000, 500)
 
         # full_dim = [1000, 500, 250, 125, 62, 31, 15, 7]
-        full_dim = range(1000, 2, -self.classfication_dim_stride) # 1000 -> 2
-        full_dim = [1000, 500, 50, 10]
+        full_dim = range(1000 + 768 + 25 * 5 + 2, 2, -self.classfication_dim_stride) # 1000 -> 2
+        full_dim = [1000 + 768 + 25 * 5 + 2, 1000, 500, 50, 10]
         self.classfication = attention_classfication(full_dim)
 
         self.softmax = nn.Sequential(
-            nn.Linear(full_dim[-1] + 2, 2),
+            nn.Linear(full_dim[-1], 2),
             nn.Softmax(1)
         )
 
         self.criterion = nn.CrossEntropyLoss()
 
 
-        full_dim = [12, 6, 3, 1]
+        full_dim = [9, 4, 2, 1]
         self.fullconnect = MultiLP(full_dim)
 
-        self.lstm_layer=torch.nn.LSTM(input_size=12, hidden_size=10, num_layers=5, bias=True,batch_first=True,dropout=0.2,bidirectional=False)
+        self.lstm_layer=torch.nn.LSTM(input_size=9, hidden_size=25, num_layers=5, bias=True,batch_first=True,dropout=0.2,bidirectional=False)
 
-        self.pool = nn.MaxPool1d(2, stride=2)
+        # self.pool = nn.MaxPool1d(2, stride=2)
+        # self.conv1d = nn.Conv1d(in_channels=1, out_channels = 512, kernel_size = 2)
 
-        full_dim = [12, 12, 24, 24]
+        full_dim = [9, 16, 32, 64, 128]
         self.albert_fullconnect = MultiLP(full_dim)
+        self.conv1d = torch.nn.Conv1d(in_channels=128, out_channels = 128, kernel_size = 2, stride  = 1)
+
+        self.bert = AlbertModel.from_pretrained("albert-base-v2")
+
+
 
     def training_step(self, batch, batch_idx):
         (x, x2), y = batch  # x2(length, 12)
         x_sm = torch.empty(len(x2), 2)
-        x_lstm = torch.empty(len(x2), 10 * 5) # hidden_size * num_layers
+        x_lstm = torch.empty(len(x2), 25 * 5) # hidden_size * num_layers
         # sum and max
         for i, xx in enumerate(x2):
             xx = self.fullconnect(xx)
             x_sm[i][0] = torch.sum(xx)
             x_sm[i][1] = torch.max(xx)
         # while len(xx)  池化小于最大长度后使用albert
+        x_id = torch.zeros([len(x2), 512, 128])
+        x_mask = torch.zeros([len(x2), 512], dtype=torch.int)
         for i, xx in enumerate(x2):
             xx = self.albert_fullconnect(xx).t()
-            while len(xx) > 512:
-                xx = self.pool(xx)
+            while xx.shape[-1] > 512:
+                xx = self.conv1d(xx)
+            # n * 128
+            x_id[i, :xx.shape[-1]] = xx.t()
+            x_mask[i, :xx.shape[-1]] = 1
 
+        output = self.bert(input_ids=None,
+            attention_mask=None,
+            token_type_ids=x_mask,
+            position_ids=None,
+            head_mask=None,
+            inputs_embeds=x_id,
+            output_attentions=None,
+            output_hidden_states=None,
+            return_dict=None)
+
+        # output[1]    # b, 768
 
         # 直接使用LSTM
         for i, xx in enumerate(x2):
@@ -191,9 +214,9 @@ class IDENet(pl.LightningModule):
 
 
         x = self.conv2ds(x)
-        y_hat = self.resnet_model(x)
-        y_hat = self.classfication(y_hat)
-        y_hat = torch.cat([y_hat, xx2], 0)
+        x = self.resnet_model(x)
+        y_hat = self.classfication(torch.cat([y_hat, output[1], x_lstm, x_sm], 0))
+        # y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
         loss = self.criterion(y_hat, y_t.cuda())
 

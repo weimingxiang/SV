@@ -92,12 +92,27 @@ def p(sum_data):
 
     # copy begin
     print("deal " + chromosome)
-    # mid_sign_list = process(bam_path, chromosome, chr_len, data_dir)
-    mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
-    # torch.save(mid_sign_list, data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
-    mid_sign_img = ut.mid_list2img(mid_sign_list, chromosome)
-    ut.mymkdir(data_dir + "chromosome_img/")
-    torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
+    # # mid_sign_list = process(bam_path, chromosome, chr_len, data_dir)
+    # mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+    # # torch.save(mid_sign_list, data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+    # mid_sign_img = ut.mid_list2img(mid_sign_list, chromosome)
+    # ut.mymkdir(data_dir + "chromosome_img/")
+    # torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
+
+    mid_sign_img = torch.load(data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
+    mm = torch.empty(len(mid_sign_img), 9)
+    mm[:, 0] = mid_sign_img[:, 7]
+    mm[:, 1] = mid_sign_img[:, 1]
+    mm[:, 2] = mid_sign_img[:, 2]
+    mm[:, 3] = mid_sign_img[:, 3]
+    mm[:, 4] = mid_sign_img[:, 4]
+    mm[:, 5] = mid_sign_img[:, 8]
+    mm[:, 6] = mid_sign_img[:, 5]
+    mm[:, 7] = mid_sign_img[:, 6]
+    mm[:, 8] = mid_sign_img[:, 11]
+    torch.save(mm, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign9.pt")
+
+    
 
     # copy end
     torch.save(1, data_dir + 'flag/' + chromosome + '.txt')

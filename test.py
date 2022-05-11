@@ -1,24 +1,16 @@
-import utilities as ut
-from pudb import set_trace
-import pandas as pd
-import random
-import numpy as np
+from m_albert import AlbertModel
 import torch
-import os
-from multiprocessing import Pool, cpu_count
-import pysam
-
-data_dir = "../datasets/NA12878_PacBio_MtSinai/"
+model = AlbertModel.from_pretrained("albert-base-v2")
 
 
-# all_p_img = torch.load(data_dir + '/all_p_img13' + '.pt')
-# all_p_img = all_p_img[:, :11]
-# torch.save(all_p_img, data_dir + '/all_p_img' + '.pt')
+a = torch.rand(10, 13)
+b = torch.rand(20, 13)
+c = torch.rand(15, 13)
+input_ids = [a, b, c]
 
-print("all_p_img")
-
-all_n_img = torch.load(data_dir + '/all_n_img13' + '.pt')
-all_n_img = all_n_img[:, :11]
-torch.save(all_n_img, data_dir + '/all_n_img' + '.pt')
-
-print("all_n_img")
+model(input_ids,
+       attention_mask=torch.tensor([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]),
+       token_type_ids=torch.tensor([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]),
+       # encoder_attention_mask=mask,
+       output_hidden_states=True,
+       return_dict=False)
