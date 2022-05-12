@@ -107,7 +107,7 @@ class conv2ds_sequential(nn.Module):
 
 class IDENet(pl.LightningModule):
 
-    def __init__(self, positive_img, negative_img, p_list, n_list, config):
+    def __init__(self, positive_img, negative_img, p_list, n_list, p_index, n_index, config):
         super(IDENet, self).__init__()
 
         self.lr = config["lr"]
@@ -120,6 +120,8 @@ class IDENet(pl.LightningModule):
         self.negative_img = negative_img
         self.p_list = p_list
         self.n_list = n_list
+        self.p_index = p_index
+        self.n_index = n_index
 
         # self.conv2ds = nn.Sequential(
         #     nn.Conv2d(in_channels=9, out_channels=8, kernel_size=3, stride=1, padding=1),
@@ -129,7 +131,7 @@ class IDENet(pl.LightningModule):
         #     nn.Conv2d(in_channels=5, out_channels=4, kernel_size=3, stride=1, padding=1),
         #     nn.Conv2d(in_channels=4, out_channels=3, kernel_size=3, stride=1, padding=1),
         # )
-        conv2d_dim = list(range(11, 3, -self.conv2d_dim_stride))
+        conv2d_dim = list(range(10, 3, -self.conv2d_dim_stride))
         conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
 
@@ -274,7 +276,7 @@ class IDENet(pl.LightningModule):
     def prepare_data(self):
 
         train_proportion = 0.8
-        input_data = ut.IdentifyDataset(self.positive_img, self.negative_img, self.p_list, self.n_list)
+        input_data = ut.IdentifyDataset(self.positive_img, self.negative_img, self.p_list, self.n_list, self.p_index, self.n_index)
         dataset_size = len(input_data)
         indices = list(range(dataset_size))
         split = int(np.floor(train_proportion * dataset_size))

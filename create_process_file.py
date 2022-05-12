@@ -99,20 +99,43 @@ def p(sum_data):
     # ut.mymkdir(data_dir + "chromosome_img/")
     # torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
 
-    mid_sign_img = torch.load(data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
-    mm = torch.empty(len(mid_sign_img), 9)
-    mm[:, 0] = mid_sign_img[:, 7]
-    mm[:, 1] = mid_sign_img[:, 1]
-    mm[:, 2] = mid_sign_img[:, 2]
-    mm[:, 3] = mid_sign_img[:, 3]
-    mm[:, 4] = mid_sign_img[:, 4]
-    mm[:, 5] = mid_sign_img[:, 8]
-    mm[:, 6] = mid_sign_img[:, 5]
-    mm[:, 7] = mid_sign_img[:, 6]
-    mm[:, 8] = mid_sign_img[:, 11]
-    torch.save(mm, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign9.pt")
+    mid_sign_img = torch.load(data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign9.pt")
 
-    
+    p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
+    n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
+
+    p_list_index = [0] * (len(p_position) + 1)
+    n_list_index = [0] * (len(n_position) + 1)
+
+
+    for i, b_e in enumerate(p_position):
+        p_list_index[i + 1] = p_list_index[i] + b_e[1] - b_e[0]
+        # print("===== finish(positive_img) " + chromosome + " " + str(i))
+
+
+    for i, b_e in enumerate(n_position):
+        n_list_index[i + 1] = n_list_index[i] + b_e[1] - b_e[0]
+        # print("===== finish(negative_img) " + chromosome + " " + str(i))
+
+    positive_img_i_list = torch.empty(p_list_index[-1], 9)
+    negative_img_i_list = torch.empty(n_list_index[-1], 9)
+
+    for i, b_e in enumerate(p_position):
+        positive_img_i_list[p_list_index[i]:p_list_index[i + 1]] = mid_sign_img[b_e[0]:b_e[1]]
+        # print("===== finish(positive_img) " + chromosome + " " + str(i))
+
+
+    for i, b_e in enumerate(n_position):
+        negative_img_i_list[n_list_index[i]:n_list_index[i + 1]] = mid_sign_img[b_e[0]:b_e[1]]
+        # print("===== finish(negative_img) " + chromosome + " " + str(i))
+
+    save_path = data_dir + 'image/' + chromosome
+
+
+    torch.save(p_list_index, save_path + '/positive_img_m(i)d.index' + '.pt')
+    torch.save(n_list_index, save_path + '/negative_img_m(i)d.index' + '.pt')
+    torch.save(positive_img_i_list, save_path + '/positive_img_m(i)d' + '.pt')
+    torch.save(negative_img_i_list, save_path + '/negative_img_m(i)d' + '.pt')
 
     # copy end
     torch.save(1, data_dir + 'flag/' + chromosome + '.txt')

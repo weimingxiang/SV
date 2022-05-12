@@ -22,7 +22,7 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
     TuneReportCheckpointCallback
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 
 seed_everything(2022)
@@ -55,7 +55,10 @@ if os.path.exists(data_dir + '/all_p_img' + '.pt') and not all_enforcement_refre
     all_p_img, all_n_img = pool.map(torch.load, [data_dir + '/all_p_img' + '.pt', data_dir + '/all_n_img' + '.pt'])
     # all_positive_img_i_list = torch.load(data_dir + '/all_p_list' + '.pt')
     # all_negative_img_i_list = torch.load(data_dir + '/all_n_list' + '.pt')
-    all_positive_img_i_list, all_negative_img_i_list = pool.map(torch.load, [data_dir + '/all_p_list' + '.pt', data_dir + '/all_n_list' + '.pt'])
+    all_p_list, all_n_list = pool.map(torch.load, [data_dir + '/all_p_list' + '.pt', data_dir + '/all_n_list' + '.pt'])
+
+    all_p_list_index, all_n_list_index = pool.map(torch.load, [data_dir + '/all_p_list.index' + '.pt', data_dir + '/all_n_list.index' + '.pt'])
+
     pool.close()
     print("loaded")
 else:
@@ -68,8 +71,8 @@ else:
     all_positive_cigar_img = torch.empty(0, 7, hight, hight)
     all_negative_cigar_img = torch.empty(0, 7, hight, hight)
 
-    all_positive_img_i_list = []
-    all_negative_img_i_list = []
+    all_p_list_index = [0]
+    all_n_list_index = [0]
 
     # pool = Pool(2)
     for chromosome, chr_len in zip(chr_list, chr_length):
@@ -145,6 +148,8 @@ else:
             negative_img_mid = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mid' + '.pt')
             positive_img_i_list = torch.load(data_dir + 'image/' + chromosome + '/positive_img_m(i)d' + '.pt')
             negative_img_i_list = torch.load(data_dir + 'image/' + chromosome + '/negative_img_m(i)d' + '.pt')
+            p_list_index = torch.load(data_dir + 'image/' + chromosome + '/positive_img_m(i)d.index' + '.pt')
+            n_list_index = torch.load(data_dir + 'image/' + chromosome + '/negative_img_m(i)d.index' + '.pt')
 
 
         # if os.path.exists(data_dir + 'image_rd/' + chromosome + '/positive_img' + '.pt') and not enforcement_refresh:
@@ -182,8 +187,8 @@ else:
             negative_img = [[] for _ in range(len(n_position))]
             positive_img_mid = torch.empty(len(p_position), 3, hight, hight)
             negative_img_mid = torch.empty(len(n_position), 3, hight, hight)
-            positive_img_i_list = [[] for _ in range(len(p_position))]
-            negative_img_i_list = [[] for _ in range(len(n_position))]
+            # positive_img_i_list = [[] for _ in range(len(p_position))]
+            # negative_img_i_list = [[] for _ in range(len(n_position))]
 
 
             # insert_chromosome = insert_result_data[insert_result_data["CHROM"] == chromosome]
@@ -216,23 +221,38 @@ else:
             #     #f negative_cigar_img = torch.cat((negative_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
             #     negative_cigar_img = torch.cat((negative_cigar_img, ut.cigar_img_single(bam_path, chromosome, begin, end).unsqueeze(0)), 0)
 
+            p_list_index = [0] * (len(p_position) + 1)
+            n_list_index = [0] * (len(n_position) + 1)
+
             for i, b_e in enumerate(p_position):
                 positive_img[i] = chromosome_sign[:, b_e[0]:b_e[1]] # dim 3
                 positive_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
-                positive_img_i_list[i] = mid_sign_img[b_e[0]:b_e[1]]
+                p_list_index[i + 1] = p_list_index[i] + b_e[1] - b_e[0]
                 print("===== finish(positive_img) " + chromosome + " " + str(i))
 
 
             for i, b_e in enumerate(n_position):
                 negative_img[i] = chromosome_sign[:, b_e[0]:b_e[1]]
                 negative_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
-                negative_img_i_list[i] = mid_sign_img[b_e[0]:b_e[1]]
+                n_list_index[i + 1] = n_list_index[i] + b_e[1] - b_e[0]
                 print("===== finish(negative_img) " + chromosome + " " + str(i))
 
 
             # _positive_img, _negative_img = pool.starmap(ut.to_input_image, zip([positive_img, negative_img], [rd_depth_mean] * 2))
             t_positive_img = ut.to_input_image(positive_img, rd_depth_mean)
             t_negative_img = ut.to_input_image(negative_img, rd_depth_mean)
+
+            positive_img_i_list = torch.empty(p_list_index[-1], 9)
+            negative_img_i_list = torch.empty(n_list_index[-1], 9)
+
+            for i, b_e in enumerate(p_position):
+                positive_img_i_list[p_list_index[i]:p_list_index[i + 1]] = mid_sign_img[b_e[0]:b_e[1]]
+                # print("===== finish(positive_img) " + chromosome + " " + str(i))
+
+
+            for i, b_e in enumerate(n_position):
+                negative_img_i_list[n_list_index[i]:n_list_index[i + 1]] = mid_sign_img[b_e[0]:b_e[1]]
+                # print("===== finish(negative_img) " + chromosome + " " + str(i))
 
             print("save image start")
 
@@ -244,6 +264,8 @@ else:
             torch.save(t_negative_img, save_path + '/negative_img' + '.pt')
             torch.save(positive_img_mid, save_path + '/positive_img_mid' + '.pt')
             torch.save(negative_img_mid, save_path + '/negative_img_mid' + '.pt')
+            torch.save(p_list_index, save_path + '/positive_img_m(i)d.index' + '.pt')
+            torch.save(n_list_index, save_path + '/negative_img_m(i)d.index' + '.pt')
             torch.save(positive_img_i_list, save_path + '/positive_img_m(i)d' + '.pt')
             torch.save(negative_img_i_list, save_path + '/negative_img_m(i)d' + '.pt')
         print("img end")
@@ -265,8 +287,8 @@ else:
             # end 从头跑程序需注释
         else:
             sam_file = pysam.AlignmentFile(bam_path, "rb")
-            positive_cigar_img = torch.empty(len(p_position), 5, hight, hight)
-            negative_cigar_img = torch.empty(len(n_position), 5, hight, hight)
+            positive_cigar_img = torch.empty(len(p_position), 4, hight, hight)
+            negative_cigar_img = torch.empty(len(n_position), 4, hight, hight)
             for i, b_e in enumerate(p_position):
                 #f positive_cigar_img = torch.cat((positive_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
                 # try:
@@ -328,19 +350,47 @@ else:
         all_negative_cigar_img = torch.cat((all_negative_cigar_img, negative_cigar_img), 0)
         all_positive_img_mid = torch.cat((all_positive_img_mid, positive_img_mid), 0)
         all_negative_img_mid = torch.cat((all_negative_img_mid, negative_img_mid), 0)
-        all_positive_img_i_list[-1:-1] = positive_img_i_list
-        all_negative_img_i_list[-1:-1] = negative_img_i_list
+
+        for i in range(len(p_list_index)):
+            p_list_index[i] = p_list_index[i] + all_p_list_index[-1]
+        for i in range(len(n_list_index)):
+            n_list_index[i] = n_list_index[i] + all_n_list_index[-1]
+        all_p_list_index = ap_list_index + p_list_index[1:]
+        # set_trace()
+        all_n_list_index = an_list_index + n_list_index[1:]
+
+    all_p_list = torch.empty(ap_list_index[-1], 9)
+    all_n_list = torch.empty(an_list_index[-1], 9)
+
+    p_index = 0
+    n_index = 0
+
+    for i, (chromosome, chr_len) in enumerate(zip(chr_list, chr_length)):
+        positive_img_i_list = torch.load(data_dir + 'image/' + chromosome + '/positive_img_m(i)d' + '.pt')
+        negative_img_i_list = torch.load(data_dir + 'image/' + chromosome + '/negative_img_m(i)d' + '.pt')
+
+        plength = len(positive_img_i_list)
+        nlength = len(negative_img_i_list)
+
+
+        all_p_list[p_index:p_index + plength] = positive_img_i_list
+        all_n_list[n_index:n_index + nlength] = negative_img_i_list
+
+        p_index += plength
+        n_index += nlength
 
     all_p_img = torch.cat([all_positive_img, all_positive_img_mid, all_positive_cigar_img], 1) # 3, 3, 3
     all_n_img = torch.cat([all_negative_img, all_negative_img_mid, all_negative_cigar_img], 1)
 
     torch.save(all_p_img, data_dir + '/all_p_img' + '.pt')
     torch.save(all_n_img, data_dir + '/all_n_img' + '.pt')
-    torch.save(all_positive_img_i_list, data_dir + '/all_p_list' + '.pt')
-    torch.save(all_negative_img_i_list, data_dir + '/all_n_list' + '.pt')
+    torch.save(all_p_list, data_dir + '/all_p_list' + '.pt')
+    torch.save(all_n_list, data_dir + '/all_n_list' + '.pt')
+    torch.save(all_p_list_index, data_dir + '/all_p_list.index' + '.pt')
+    torch.save(all_n_list_index, data_dir + '/all_n_list.index' + '.pt')
 
 
-my_label = "11+12channel_predict"
+my_label = "10+9channel_predict"
 
 logger = TensorBoardLogger(os.path.join("/home/xwm/DeepSVFilter/code", "channel_predict"), name=my_label)
 
@@ -364,13 +414,13 @@ checkpoint_callback = ModelCheckpoint(
 def main_train():
     config = {
         "lr": 1e-6,
-        "batch_size": 64,
+        "batch_size": 1,
         "beta1": 0.9,
         "conv2d_dim_stride": 1,
         "classfication_dim_stride": 400,
     }
 
-    model = IDENet(all_p_img, all_n_img, all_p_list, all_n_list, config)
+    model = IDENet(all_p_img, all_n_img, all_p_list, all_n_list, all_p_list_index, all_n_list_index, config)
 
 
 
