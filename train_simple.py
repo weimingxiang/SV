@@ -25,8 +25,8 @@ sam_file.close()
 
 hight = 224
 
-all_p_img = torch.empty(22199, 3+3+7, hight, hight)
-all_n_img = torch.empty(22199, 3+3+7, hight, hight)
+all_p_img = torch.empty(22199, 3+3+5, hight, hight)
+all_n_img = torch.empty(22199, 3+3+5, hight, hight)
 
 index = 0
 
@@ -44,7 +44,7 @@ for chromosome, chr_len in zip(chr_list, chr_length):
 
     # img/positive_cigar_img
     print("cigar start")
-    positive_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/positive_cigar_img' + '.pt') # 7
+    positive_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/positive_cigar_img' + '.pt') # 5
     negative_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/negative_cigar_img' + '.pt')
     # positive_cigar_img = torch.cat([positive_cigar_img, positive_cigar_img6], 1)
     # negative_cigar_img = torch.cat([negative_cigar_img, negative_cigar_img6], 1)
