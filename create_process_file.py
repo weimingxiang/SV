@@ -14,8 +14,10 @@ from pytorch_lightning import seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from multiprocessing import Pool, cpu_count
 import pysam
+from itertools import repeat
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 seed_everything(2022)
 
@@ -45,19 +47,15 @@ hight = 224
 
 def process(bam_path, chromosome, pic_length, data_dir):
 
-    ref_chromosome_filename = data_dir + "chr/" + chromosome + ".fa"
+    # ref_chromosome_filename = data_dir + "chr/" + chromosome + ".fa"
     # fa = pysam.FastaFile(ref_chromosome_filename)
     # chr_string = fa.fetch(chromosome)
     sam_file = pysam.AlignmentFile(bam_path, "rb")
 
-    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    # conjugate_m = torch.zeros(pic_length, dtype=torch.int)
-    conjugate_i = [[0] for _ in range(pic_length)]
-    # conjugate_d = torch.zeros(pic_length, dtype=torch.int)
-    # match_count = torch.zeros(pic_length, dtype=torch.int)
-    # mismatch_count = torch.zeros(pic_length, dtype=torch.int)
-    # bam_op_count = torch.zeros([9, pic_length], dtype=torch.int)
+    conjugate_m = torch.zeros(pic_length, dtype=torch.int)
+    conjugate_i = torch.zeros(pic_length, dtype=torch.int)
+    conjugate_d = torch.zeros(pic_length, dtype=torch.int)
+    conjugate_s = torch.zeros(pic_length, dtype=torch.int)
 
     for read in sam_file.fetch(chromosome):
         if read.is_unmapped:
@@ -75,67 +73,67 @@ def process(bam_path, chromosome, pic_length, data_dir):
             if operation == 3 or operation == 7 or operation == 8:
                 reference_index += length
             elif operation == 0:
+                conjugate_m[reference_index:reference_index + length] += 1
                 reference_index += length
             elif operation == 1:
-                conjugate_i[reference_index].append(length)
+                conjugate_i[reference_index] += length
+            elif operation == 4:
+                conjugate_s[reference_index - int(length / 2):reference_index + int(length / 2)] += 1
             elif operation == 2:
+                conjugate_d[reference_index:reference_index + length] += 1
                 reference_index += length
 
     sam_file.close()
 
     # rd_count = MaxMinNormalization(rd_count)  # The scope of rd_count value is [0, 1]
 
-    return conjugate_i
+    return torch.cat([conjugate_m.unsqueeze(0), conjugate_i.unsqueeze(0), conjugate_d.unsqueeze(0), conjugate_s.unsqueeze(0)], 0)
+
+
+
+def my(b_e, chromosome, flag):
+    sam_file = pysam.AlignmentFile(bam_path, "rb")
+    print("===== finish(position) " + chromosome + " " + flag)
+    try:
+        return ut.cigar_new_img_single_optimal(sam_file, chromosome, b_e[0], b_e[1])
+    except Exception as e:
+        print(e)
+        print("Exception cigar_img_single_optimal")
+        return ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+
 
 def p(sum_data):
     chromosome, chr_len = sum_data
 
     # copy begin
     print("deal " + chromosome)
-    # # mid_sign_list = process(bam_path, chromosome, chr_len, data_dir)
-    # mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
-    # # torch.save(mid_sign_list, data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
-    # mid_sign_img = ut.mid_list2img(mid_sign_list, chromosome)
-    # ut.mymkdir(data_dir + "chromosome_img/")
-    # torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
-
-    mid_sign_img = torch.load(data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign9.pt")
-
     p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
     n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
+    # img/positive_cigar_img
+    print("cigar start")
+    positive_cigar_img = torch.empty(len(p_position), 4, hight, hight)
+    negative_cigar_img = torch.empty(len(n_position), 4, hight, hight)
 
-    p_list_index = [0] * (len(p_position) + 1)
-    n_list_index = [0] * (len(n_position) + 1)
+    pool = Pool(maxtasksperchild = 10)
+    a = pool.starmap(my, zip(p_position, repeat(chromosome), repeat("p")))
+    b = pool.starmap(my, zip(n_position, repeat(chromosome), repeat("n")))
+    pool.close()
 
+    for i, item in enumerate(a):
+        positive_cigar_img[i] = item
+    for i, item in enumerate(b):
+        negative_cigar_img[i] = item
 
-    for i, b_e in enumerate(p_position):
-        p_list_index[i + 1] = p_list_index[i] + b_e[1] - b_e[0]
-        # print("===== finish(positive_img) " + chromosome + " " + str(i))
+    sam_file.close()
 
-
-    for i, b_e in enumerate(n_position):
-        n_list_index[i + 1] = n_list_index[i] + b_e[1] - b_e[0]
-        # print("===== finish(negative_img) " + chromosome + " " + str(i))
-
-    positive_img_i_list = torch.empty(p_list_index[-1], 9)
-    negative_img_i_list = torch.empty(n_list_index[-1], 9)
-
-    for i, b_e in enumerate(p_position):
-        positive_img_i_list[p_list_index[i]:p_list_index[i + 1]] = mid_sign_img[b_e[0]:b_e[1]]
-        # print("===== finish(positive_img) " + chromosome + " " + str(i))
-
-
-    for i, b_e in enumerate(n_position):
-        negative_img_i_list[n_list_index[i]:n_list_index[i + 1]] = mid_sign_img[b_e[0]:b_e[1]]
-        # print("===== finish(negative_img) " + chromosome + " " + str(i))
+    del a
+    del b
 
     save_path = data_dir + 'image/' + chromosome
 
-
-    torch.save(p_list_index, save_path + '/positive_img_m(i)d.index' + '.pt')
-    torch.save(n_list_index, save_path + '/negative_img_m(i)d.index' + '.pt')
-    torch.save(positive_img_i_list, save_path + '/positive_img_m(i)d' + '.pt')
-    torch.save(negative_img_i_list, save_path + '/negative_img_m(i)d' + '.pt')
+    torch.save(positive_cigar_img, save_path + '/positive_cigar_new_img' + '.pt')
+    torch.save(negative_cigar_img, save_path + '/negative_cigar_new_img' + '.pt')
+    print("cigar end")
 
     # copy end
     torch.save(1, data_dir + 'flag/' + chromosome + '.txt')
