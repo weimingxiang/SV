@@ -15,7 +15,10 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from multiprocessing import Pool, cpu_count
 import pysam
 from itertools import repeat
+from functools import partial
+import time
 
+# from cython.parallel import prange, parallel, threadid
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -93,13 +96,21 @@ def process(bam_path, chromosome, pic_length, data_dir):
 
 def my(b_e, chromosome, flag):
     sam_file = pysam.AlignmentFile(bam_path, "rb")
-    print("===== finish(position) " + chromosome + " " + flag)
+    # print("===== finish(position) " + chromosome + " " + flag)
     try:
         return ut.cigar_new_img_single_optimal(sam_file, chromosome, b_e[0], b_e[1])
     except Exception as e:
         print(e)
         print("Exception cigar_img_single_optimal")
-        return ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+        try:
+            return ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+        except Exception as e:
+            print(e)
+            print("Exception cigar_new_img_single_memory")
+            sam_file.close()
+            # time.sleep(60)
+            return my(b_e, chromosome, flag)
+
 
 
 def p(sum_data):
@@ -114,17 +125,31 @@ def p(sum_data):
     positive_cigar_img = torch.empty(len(p_position), 4, hight, hight)
     negative_cigar_img = torch.empty(len(n_position), 4, hight, hight)
 
+    # for i in prange(len(p_position), nogil=True):
+    # # for i, b_e in enumerate(p_position):
+    #     positive_cigar_img[i] = my(p_position[i], chromosome, "p " + str(i))
+    # for i in prange(len(n_position), nogil=True):
+    # # for i, b_e in enumerate(n_position):
+    #     negative_cigar_img[i] = my(n_position[i], chromosome, "n " + str(i))
+
     pool = Pool(maxtasksperchild = 10)
-    a = pool.starmap(my, zip(p_position, repeat(chromosome), repeat("p")))
-    b = pool.starmap(my, zip(n_position, repeat(chromosome), repeat("n")))
+    a = pool.imap(partial(my, chromosome = chromosome, flag = "p"), p_position)
+    print("============")
+    b = pool.imap(partial(my, chromosome = chromosome, flag = "n"), n_position)
+    print("pool close begin")
+    # b = pool.starmap(my, zip(n_position, repeat(chromosome), repeat("n")))
     pool.close()
+    print("pool close end")
 
     for i, item in enumerate(a):
         positive_cigar_img[i] = item
+        print("===== finish(position) " + chromosome + " p " + str(i))
+
     for i, item in enumerate(b):
         negative_cigar_img[i] = item
+        print("===== finish(position) " + chromosome + " n " + str(i))
 
-    sam_file.close()
+
 
     del a
     del b

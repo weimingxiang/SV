@@ -419,7 +419,7 @@ def cigar_new_img_single_optimal(sam_file, chromosome, begin, end): # 去除I的
     else:
         cigars_img = torch.zeros([4, hight, hight])
 
-    # sam_file.close()
+    sam_file.close()
     # print("======= to input image end =========")
     return cigars_img
 
@@ -438,8 +438,8 @@ def cigar_new_img_single_memory(sam_file, chromosome, begin, end): # 去除I的�
     if r_start:
         ref_min = np.min(r_start)
         ref_max = np.max(r_end)
-        cigars_img = torch.zeros([1, len(r_start), ref_max - ref_min])
 
+        cigars_img = torch.zeros([1, len(r_start), ref_max - ref_min])
         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
             max_terminal = read.reference_start - ref_min
 
@@ -457,8 +457,10 @@ def cigar_new_img_single_memory(sam_file, chromosome, begin, end): # 去除I的�
 
                 elif operation == 3 or operation == 7 or operation == 8:
                     max_terminal += length
+
         cigars_img1 = resize(cigars_img)
 
+        cigars_img[:, :, :] = 0
         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
             max_terminal = read.reference_start - ref_min
 
@@ -478,6 +480,7 @@ def cigar_new_img_single_memory(sam_file, chromosome, begin, end): # 去除I的�
                     max_terminal += length
         cigars_img2 = resize(cigars_img)
 
+        cigars_img[:, :, :] = 0
         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
             max_terminal = read.reference_start - ref_min
 
@@ -497,6 +500,7 @@ def cigar_new_img_single_memory(sam_file, chromosome, begin, end): # 去除I的�
                     max_terminal += length
         cigars_img3 = resize(cigars_img)
 
+        cigars_img[:, :, :] = 0
         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
             max_terminal = read.reference_start - ref_min
 
@@ -515,11 +519,17 @@ def cigar_new_img_single_memory(sam_file, chromosome, begin, end): # 去除I的�
                 elif operation == 3 or operation == 7 or operation == 8:
                     max_terminal += length
         cigars_img4 = resize(cigars_img)
-        cigars_img = torch.cat([cigars_img1, cigars_img2, cigars_img3, cigars_img4], dim = 0)
+
+        cigars_img = torch.empty([4, hight, hight])
+        cigars_img[0] = cigars_img1
+        cigars_img[1] = cigars_img2
+        cigars_img[2] = cigars_img3
+        cigars_img[3] = cigars_img4
+
     else:
         cigars_img = torch.zeros([4, hight, hight])
 
-    # sam_file.close()
+    sam_file.close()
     # print("======= to input image end =========")
     return cigars_img
 

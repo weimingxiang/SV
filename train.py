@@ -13,6 +13,7 @@ from pytorch_lightning import seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from multiprocessing import Pool, cpu_count
 import pysam
+import time
 import ray
 from ray import tune
 from ray.tune import CLIReporter
@@ -278,7 +279,16 @@ else:
                 except Exception as e:
                     print(e)
                     print("Exception cigar_img_single_optimal")
-                    positive_cigar_img[i] = ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+                    fail = 1
+                    while fail:
+                        try:
+                            fail = 0
+                            positive_cigar_img[i] = ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+                        except Exception as e:
+                            fail = 1
+                            print(e)
+                            print("Exception cigar_new_img_single_memory")
+                            time.sleep(60)
                 #     try:
                 #         positive_cigar_img[i] = ut.cigar_img_single_optimal_time2sapce(sam_file, chromosome, b_e[0], b_e[1])
                 #     except Exception as e:
@@ -303,7 +313,16 @@ else:
                 except Exception as e:
                     print(e)
                     print("Exception cigar_img_single_optimal")
-                    negative_cigar_img[i] = ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+                    fail = 1
+                    while fail:
+                        try:
+                            fail = 0
+                            negative_cigar_img[i] = ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+                        except Exception as e:
+                            fail = 1
+                            print(e)
+                            print("Exception cigar_new_img_single_memory")
+                            time.sleep(60)
 
                     # try:
                     #     negative_cigar_img[i] = ut.cigar_img_single_optimal_time2sapce(sam_file, chromosome, b_e[0], b_e[1])
