@@ -43,6 +43,87 @@ cigar_enforcement_refresh = 0
 
 hight = 224
 
+import sys
+import os
+import random
+import numpy as np
+from pudb import set_trace
+import argparse
+from glob import glob
+import torch
+import torchvision
+from multiprocessing import Pool, cpu_count
+import pysam
+import time
+
+hight = 224
+resize = torchvision.transforms.Resize([hight, hight])
+
+# # 通过pos计算值
+# def pos2value(lis, pos):
+#     pos_float = pos - int(pos)
+#     x1 = lis[int(pos)] * (1 - pos_float)
+#     x2 = lis[int(pos) + 1] * pos_float
+#     return x1 + x2
+
+# #计算上下四分位数
+# #计算上下边缘
+# #计算中位数
+# def count_quartiles_median(lis):
+#     length = float(len(lis)) - 1
+#     q1 = length / 4
+#     q3 = length * 3 / 4
+#     q4 = q3 + 1.5 * (q3 - q1)
+#     q = q1 - 1.5 * (q3 - q1)
+#     q2 = length / 2  # 中位数
+#     return pos2value(lis, q), pos2value(lis, q1), pos2value(lis, q2), pos2value(lis, q3), pos2value(lis, q4)
+
+def get_rms(records):
+    """
+    均方根值 反映的是有效值而不是平均值
+    """
+    return np.sqrt(sum([x ** 2 for x in records]) / len(records))
+
+def get_gm(records):
+    """
+    几何平均
+    """
+    return (np.prod(records)) ** (1 / len(records))
+
+def get_hm(records):
+    """
+    调和平均
+    """
+    records = records
+    return len(records) / sum([1 / x for x in records])
+
+def get_cv(records): #标准分和变异系数
+    mean = np.mean(records)
+    std = np.std(records)
+    cv = std / mean
+    return mean, std, cv
+
+def mid_list2img(mid_sign_list, chromosome):
+    mid_sign_img = torch.zeros(len(mid_sign_list), 11)
+    for i, mid_sign in enumerate(mid_sign_list):
+        if i % 50000 == 0:
+            print(str(chromosome) + "\t" + str(i))
+        mid_sign_img[i, 0] = len(mid_sign)
+        if mid_sign_img[i, 0] == 1:
+            continue
+        mid_sign = np.array(mid_sign[1:])
+        mid_sign_img[i, 1], mid_sign_img[i, 2], mid_sign_img[i, 3], mid_sign_img[i, 4], mid_sign_img[i, 5] = np.quantile(mid_sign, [0, 0.25, 0.5, 0.75, 1], interpolation='linear')
+        # mid_sign_img[i, 0], mid_sign_img[i, 1], mid_sign_img[i, 2], mid_sign_img[i, 3], mid_sign_img[i, 4] = count_quartiles_median(mid_sign) # 四分位
+        # mid_sign_img[i, 5] = np.mean(mid_sign)
+        # mid_sign_img[i, 6] = np.std(mid_sign)
+        # mid_sign_img[i, 7] = len(mid_sign)
+        mid_sign_img[i, 6] = get_rms(mid_sign)
+        mid_sign_img[i, 7] = get_gm(mid_sign)
+        mid_sign_img[i, 8] = get_hm(mid_sign)
+        mid_sign_img[i, 9], mid_sign_img[i, 10], mid_sign_img[i, 11] = get_cv(mid_sign)
+
+    return mid_sign_img
+
 # data_list = []
 # for chromosome, chr_len in zip(chr_list, chr_length):
 #     if not os.path.exists(data_dir + 'flag/' + chromosome + '.txt'):
@@ -96,7 +177,7 @@ def process(bam_path, chromosome, pic_length, data_dir):
 
 def my(b_e, chromosome, flag):
     sam_file = pysam.AlignmentFile(bam_path, "rb")
-    # print("===== finish(position) " + chromosome + " " + flag)
+    print("===== finish(position) " + chromosome + " " + flag)
     try:
         return ut.cigar_new_img_single_optimal(sam_file, chromosome, b_e[0], b_e[1])
     except Exception as e:
@@ -118,46 +199,57 @@ def p(sum_data):
 
     # copy begin
     print("deal " + chromosome)
-    p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
-    n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
-    # img/positive_cigar_img
-    print("cigar start")
-    positive_cigar_img = torch.empty(len(p_position), 4, hight, hight)
-    negative_cigar_img = torch.empty(len(n_position), 4, hight, hight)
 
-    # for i in prange(len(p_position), nogil=True):
+    # 1
+    mid_sign = process(bam_path, chromosome, chr_len, data_dir)
+    torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
+
+    # 2
+    
+    # mid_sign_img = mid_list2img(mid_sign_list)
+    # ut.mymkdir(data_dir + "chromosome_img/")
+    # torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign11.pt")
+
+    # p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
+    # n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
+    # # img/positive_cigar_img
+    # print("cigar start")
+    # positive_cigar_img = torch.empty(len(p_position), 4, hight, hight)
+    # negative_cigar_img = torch.empty(len(n_position), 4, hight, hight)
+
+    # for i in range(len(p_position)):
     # # for i, b_e in enumerate(p_position):
     #     positive_cigar_img[i] = my(p_position[i], chromosome, "p " + str(i))
-    # for i in prange(len(n_position), nogil=True):
+    # for i in range(len(n_position)):
     # # for i, b_e in enumerate(n_position):
     #     negative_cigar_img[i] = my(n_position[i], chromosome, "n " + str(i))
 
-    pool = Pool(maxtasksperchild = 10)
-    a = pool.imap(partial(my, chromosome = chromosome, flag = "p"), p_position)
-    print("============")
-    b = pool.imap(partial(my, chromosome = chromosome, flag = "n"), n_position)
-    print("pool close begin")
-    # b = pool.starmap(my, zip(n_position, repeat(chromosome), repeat("n")))
-    pool.close()
-    print("pool close end")
+    # # pool = Pool(maxtasksperchild = 10)
+    # # a = pool.imap(partial(my, chromosome = chromosome, flag = "p"), p_position)
+    # # print("============")
+    # # b = pool.imap(partial(my, chromosome = chromosome, flag = "n"), n_position)
+    # # print("pool close begin")
+    # # # b = pool.starmap(my, zip(n_position, repeat(chromosome), repeat("n")))
+    # # pool.close()
+    # # print("pool close end")
+    # # pool.join()
+    # # print("pool join end")
 
-    for i, item in enumerate(a):
-        positive_cigar_img[i] = item
-        print("===== finish(position) " + chromosome + " p " + str(i))
+    # # for i, item in enumerate(a):
+    # #     positive_cigar_img[i] = item
+    # #     print("===== finish(position) " + chromosome + " p " + str(i))
 
-    for i, item in enumerate(b):
-        negative_cigar_img[i] = item
-        print("===== finish(position) " + chromosome + " n " + str(i))
+    # # for i, item in enumerate(b):
+    # #     negative_cigar_img[i] = item
+    # #     print("===== finish(position) " + chromosome + " n " + str(i))
 
+    # # del a
+    # # del b
 
+    # save_path = data_dir + 'image/' + chromosome
 
-    del a
-    del b
-
-    save_path = data_dir + 'image/' + chromosome
-
-    torch.save(positive_cigar_img, save_path + '/positive_cigar_new_img' + '.pt')
-    torch.save(negative_cigar_img, save_path + '/negative_cigar_new_img' + '.pt')
+    # torch.save(positive_cigar_img, save_path + '/positive_cigar_new_img' + '.pt')
+    # torch.save(negative_cigar_img, save_path + '/negative_cigar_new_img' + '.pt')
     print("cigar end")
 
     # copy end

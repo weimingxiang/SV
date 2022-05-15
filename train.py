@@ -288,7 +288,7 @@ else:
                             fail = 1
                             print(e)
                             print("Exception cigar_new_img_single_memory")
-                            time.sleep(60)
+                            time.sleep(5)
                 #     try:
                 #         positive_cigar_img[i] = ut.cigar_img_single_optimal_time2sapce(sam_file, chromosome, b_e[0], b_e[1])
                 #     except Exception as e:
