@@ -41,6 +41,8 @@ for chromosome, chr_len in zip(chr_list, chr_length):
 
 for chr, len in data_list:
     print("python create_process_file.py --chr " + chr + " --len " + str(len))
-    subprocess.call("python create_process_file.py --chr " + chr + " --len " + str(len), shell = True)
+    # subprocess.call("python create_process_file.py --chr " + chr + " --len " + str(len), shell = True)
     # fd = open(chr + ".txt")
-    # subprocess.Popen("python create_process_file.py --chr " + chr + " --len " + str(len), shell=True)
+    subprocess.Popen("python create_process_file.py --chr " + chr + " --len " + str(len), shell=True)
+    # subprocess.Popen("python par.py --chr " + chr + " --len " + str(len), shell=True)
+
