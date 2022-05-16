@@ -1,20 +1,3 @@
-   PID TTY          TIME CMD
- 51098 pts/6    00:00:02 bash
-114776 pts/6    00:05:05 python
-114783 pts/6    00:05:11 python
-114790 pts/6    00:05:17 python
-114803 pts/6    00:05:37 python
-114812 pts/6    00:04:20 python
-114827 pts/6    00:05:59 python
-114845 pts/6    00:04:53 python
-114854 pts/6    00:05:46 python
-114863 pts/6    00:04:35 python
-114872 pts/6    00:03:36 python
-114885 pts/6    00:04:18 python
-114896 pts/6    00:05:48 python
-114905 pts/6    00:05:08 python
-114914 pts/6    00:05:44 python
-114932 pts/6    00:06:16 python
-114942 pts/6    00:06:06 python
-114951 pts/6    00:05:53 python
-118124 pts/6    00:00:00 ps
+Global seed set to 2022
+deal chrM
+cigar end
