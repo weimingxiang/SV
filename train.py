@@ -52,12 +52,12 @@ hight = 224
 if os.path.exists(data_dir + '/all_p_img' + '.pt') and not all_enforcement_refresh:
     pool = Pool(2)
     print("loading")
-    # all_p_img = torch.load(data_dir + '/all_p_img' + '.pt')
-    # all_n_img = torch.load(data_dir + '/all_n_img' + '.pt')
-    all_p_img, all_n_img = pool.map(torch.load, [data_dir + '/all_p_img' + '.pt', data_dir + '/all_n_img' + '.pt'])
+    all_p_img = torch.load(data_dir + '/all_p_img' + '.pt')
+    all_n_img = torch.load(data_dir + '/all_n_img' + '.pt')
+    # all_p_img, all_n_img = pool.imap(torch.load, [data_dir + '/all_p_img' + '.pt', data_dir + '/all_n_img' + '.pt'])
     # all_positive_img_i_list = torch.load(data_dir + '/all_p_list' + '.pt')
     # all_negative_img_i_list = torch.load(data_dir + '/all_n_list' + '.pt')
-    all_p_list, all_n_list = pool.map(torch.load, [data_dir + '/all_p_list' + '.pt', data_dir + '/all_n_list' + '.pt'])
+    all_p_list, all_n_list = pool.imap(torch.load, [data_dir + '/all_p_list' + '.pt', data_dir + '/all_n_list' + '.pt'])
 
     pool.close()
     print("loaded")
@@ -167,7 +167,7 @@ else:
                 torch.save(chromosome_sign, data_dir + "chromosome_sign/" + chromosome + ".pt")
                 torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
                 torch.save(mid_sign_list, data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
-                mid_sign_img = ut.mid_list2img(mid_sign_list)
+                mid_sign_img = ut.mid_list2img(mid_sign_list, chromosome)
                 ut.mymkdir(data_dir + "chromosome_img/")
                 torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
             #f # cigar

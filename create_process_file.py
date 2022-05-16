@@ -84,11 +84,11 @@ def get_rms(records):
     """
     return np.sqrt(sum([x ** 2 for x in records]) / len(records))
 
-def get_gm(records):
-    """
-    几何平均
-    """
-    return (np.prod(records)) ** (1 / len(records))
+# def get_gm(records, i):
+#     """
+#     几何平均
+#     """
+#     return (np.prod(records)) ** (1 / len(records))
 
 def get_hm(records):
     """
@@ -118,9 +118,9 @@ def mid_list2img(mid_sign_list, chromosome):
         # mid_sign_img[i, 6] = np.std(mid_sign)
         # mid_sign_img[i, 7] = len(mid_sign)
         mid_sign_img[i, 6] = get_rms(mid_sign)
-        mid_sign_img[i, 7] = get_gm(mid_sign)
-        mid_sign_img[i, 8] = get_hm(mid_sign)
-        mid_sign_img[i, 9], mid_sign_img[i, 10], mid_sign_img[i, 11] = get_cv(mid_sign)
+        # mid_sign_img[i, 7] = get_gm(mid_sign, i)
+        mid_sign_img[i, 7] = get_hm(mid_sign)
+        mid_sign_img[i, 8], mid_sign_img[i, 9], mid_sign_img[i, 10] = get_cv(mid_sign)
 
     return mid_sign_img
 
@@ -200,15 +200,16 @@ def p(sum_data):
     # copy begin
     print("deal " + chromosome)
 
-    # 1
-    mid_sign = process(bam_path, chromosome, chr_len, data_dir)
-    torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
+    # # 1
+    # mid_sign = process(bam_path, chromosome, chr_len, data_dir)
+    # torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
 
     # 2
-    
-    # mid_sign_img = mid_list2img(mid_sign_list)
-    # ut.mymkdir(data_dir + "chromosome_img/")
-    # torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign11.pt")
+    mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+
+    mid_sign_img = mid_list2img(mid_sign_list, chromosome)
+    ut.mymkdir(data_dir + "chromosome_img/")
+    torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign12.pt")
 
     # p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
     # n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
@@ -253,7 +254,7 @@ def p(sum_data):
     print("cigar end")
 
     # copy end
-    torch.save(1, data_dir + 'flag/' + chromosome + '.txt')
+    torch.save(1, data_dir + 'flag/' + chromosome + '.txt1')
 
 
 
