@@ -144,8 +144,8 @@ else:
             # pool.close()
             t_positive_img = torch.load(data_dir + 'image/' + chromosome + '/positive_img' + '.pt')
             t_negative_img = torch.load(data_dir + 'image/' + chromosome + '/negative_img' + '.pt')
-            positive_img_mid = torch.load(data_dir + 'image/' + chromosome + '/positive_img_mid' + '.pt')
-            negative_img_mid = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mid' + '.pt')
+            positive_img_mid = torch.load(data_dir + 'image/' + chromosome + '/positive_img_mids' + '.pt')
+            negative_img_mid = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mids' + '.pt')
             positive_img_i = torch.load(data_dir + 'image/' + chromosome + '/positive_img_m(i)d' + '.pt')
             negative_img_i = torch.load(data_dir + 'image/' + chromosome + '/negative_img_m(i)d' + '.pt')
 
@@ -183,8 +183,8 @@ else:
 
             positive_img = [[] for _ in range(len(p_position))]
             negative_img = [[] for _ in range(len(n_position))]
-            positive_img_mid = torch.empty(len(p_position), 3, hight, hight)
-            negative_img_mid = torch.empty(len(n_position), 3, hight, hight)
+            positive_img_mid = torch.empty(len(p_position), 4, hight, hight)
+            negative_img_mid = torch.empty(len(n_position), 4, hight, hight)
             positive_img_i = torch.empty(len(p_position), 512, 9)
             negative_img_i = torch.empty(len(n_position), 512, 9)
 
@@ -247,18 +247,18 @@ else:
             # pool.starmap(torch.save, zip([_positive_img, _negative_img, positive_cigar_img, negative_cigar_img], [save_path + '/positive_img' + '.pt', save_path + '/negative_img' + '.pt', save_path + '/positive_cigar_img' + '.pt', save_path + '/negative_cigar_img' + '.pt']))
             torch.save(t_positive_img, save_path + '/positive_img' + '.pt')
             torch.save(t_negative_img, save_path + '/negative_img' + '.pt')
-            torch.save(positive_img_mid, save_path + '/positive_img_mid' + '.pt')
-            torch.save(negative_img_mid, save_path + '/negative_img_mid' + '.pt')
+            torch.save(positive_img_mid, save_path + '/positive_img_mids' + '.pt')
+            torch.save(negative_img_mid, save_path + '/negative_img_mids' + '.pt')
             torch.save(positive_img_i, save_path + '/positive_img_m(i)d' + '.pt')
             torch.save(negative_img_i, save_path + '/negative_img_m(i)d' + '.pt')
         print("img end")
 
         # img/positive_cigar_img
         print("cigar start")
-        if os.path.exists(data_dir + 'image/' + chromosome + '/positive_cigar_img' + '.pt') and not cigar_enforcement_refresh:
+        if os.path.exists(data_dir + 'image/' + chromosome + '/positive_cigar_new_img' + '.pt') and not cigar_enforcement_refresh:
             print("loading")
-            positive_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/positive_cigar_img' + '.pt')
-            negative_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/negative_cigar_img' + '.pt')
+            positive_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/positive_cigar_new_img' + '.pt')
+            negative_cigar_img = torch.load(data_dir + 'image/' + chromosome + '/negative_cigar_new_img' + '.pt')
             # 由于未刷新数据增加的代码
             # all_p_img0 = positive_cigar_img[:, 0, :, :] + positive_cigar_img[:, 5, :, :]
             # all_n_img0 = negative_cigar_img[:, 0, :, :] + negative_cigar_img[:, 5, :, :]
@@ -322,7 +322,7 @@ else:
                             fail = 1
                             print(e)
                             print("Exception cigar_new_img_single_memory")
-                            time.sleep(60)
+                            time.sleep(5)
 
                     # try:
                     #     negative_cigar_img[i] = ut.cigar_img_single_optimal_time2sapce(sam_file, chromosome, b_e[0], b_e[1])
@@ -342,8 +342,8 @@ else:
 
             save_path = data_dir + 'image/' + chromosome
 
-            torch.save(positive_cigar_img, save_path + '/positive_cigar_img' + '.pt')
-            torch.save(negative_cigar_img, save_path + '/negative_cigar_img' + '.pt')
+            torch.save(positive_cigar_img, save_path + '/positive_cigar_new_img' + '.pt')
+            torch.save(negative_cigar_img, save_path + '/negative_cigar_new_img' + '.pt')
         print("cigar end")
 
         all_positive_img = torch.cat((all_positive_img, t_positive_img), 0)
@@ -401,7 +401,7 @@ def main_train():
 
 
 
-    resume = "./checkpoints_predict/" + my_label + "/epoch=196-validation_mean=0.73-train_mean=0.98.ckpt"
+    resume = "./checkpoints_predict/" + my_label + "/epoch=04-validation_mean=0.95-train_mean=0.95.ckpt"
 
     trainer = pl.Trainer(
         max_epochs=200,
@@ -411,7 +411,7 @@ def main_train():
         logger=logger,
         # val_percent_check=0,
         callbacks=[checkpoint_callback],
-        # resume_from_checkpoint=resume
+        resume_from_checkpoint=resume
     )
 
     trainer.fit(model)

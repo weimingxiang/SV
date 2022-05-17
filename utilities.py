@@ -1668,7 +1668,7 @@ def to_img_mid_single(img, hight = 224):
     img = torch.maximum(img.float(), torch.tensor(0))
 
     pic_length = img.size()
-    im = torch.zeros(3, pic_length[-1], hight)
+    im = torch.zeros(4, pic_length[-1], hight)
 
     for x in range(pic_length[-1]):
         y = img[:, x].int()
