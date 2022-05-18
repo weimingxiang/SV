@@ -204,36 +204,36 @@ def p(sum_data):
     # mid_sign = process(bam_path, chromosome, chr_len, data_dir)
     # torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
 
+    # # 2
+    # p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
+    # n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
+
+    # mid_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
+
+    # positive_img_mid = torch.empty(len(p_position), 4, hight, hight)
+    # negative_img_mid = torch.empty(len(n_position), 4, hight, hight)
+
+    # for i, b_e in enumerate(p_position):
+    #     positive_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
+    #     print("===== finish(positive_img) " + chromosome + " " + str(i))
+
+
+    # for i, b_e in enumerate(n_position):
+    #     negative_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
+
+    #     print("===== finish(negative_img) " + chromosome + " " + str(i))
+
+    # save_path = data_dir + 'image/' + chromosome
+
+    # torch.save(positive_img_mid, save_path + '/positive_img_mids' + '.pt')
+    # torch.save(negative_img_mid, save_path + '/negative_img_mids' + '.pt')
+
     # 3
-    p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
-    n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
+    mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
 
-    mid_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
-
-    positive_img_mid = torch.empty(len(p_position), 4, hight, hight)
-    negative_img_mid = torch.empty(len(n_position), 4, hight, hight)
-
-    for i, b_e in enumerate(p_position):
-        positive_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
-        print("===== finish(positive_img) " + chromosome + " " + str(i))
-
-
-    for i, b_e in enumerate(n_position):
-        negative_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
-
-        print("===== finish(negative_img) " + chromosome + " " + str(i))
-
-    save_path = data_dir + 'image/' + chromosome
-
-    torch.save(positive_img_mid, save_path + '/positive_img_mids' + '.pt')
-    torch.save(negative_img_mid, save_path + '/negative_img_mids' + '.pt')
-
-    # # 3
-    # mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
-
-    # mid_sign_img = mid_list2img(mid_sign_list, chromosome)
-    # ut.mymkdir(data_dir + "chromosome_img/")
-    # torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign12.pt")
+    mid_sign_img = mid_list2img(mid_sign_list, chromosome)
+    ut.mymkdir(data_dir + "chromosome_img/")
+    torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign12.pt")
 
     # p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
     # n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')

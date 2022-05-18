@@ -129,7 +129,7 @@ class IDENet(pl.LightningModule):
         #     nn.Conv2d(in_channels=5, out_channels=4, kernel_size=3, stride=1, padding=1),
         #     nn.Conv2d(in_channels=4, out_channels=3, kernel_size=3, stride=1, padding=1),
         # )
-        conv2d_dim = list(range(10, 3, -self.conv2d_dim_stride))
+        conv2d_dim = list(range(7, 3, -self.conv2d_dim_stride))
         conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
 
@@ -169,8 +169,8 @@ class IDENet(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch  # x2(length, 12)
         del batch
-        x1 = x[:, :10 * 224 * 224].reshape(-1, 10, 224, 224)
-        x2 = x[:, 10 * 224 * 224:].reshape(-1, 9)
+        x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
+        x2 = x[:, 11 * 224 * 224:].reshape(-1, 9)
         del x
         # x_sm = torch.empty(len(x2), 2)
         # x_lstm = torch.empty(len(x2), 25 * 5) # hidden_size * num_layers
@@ -249,8 +249,8 @@ class IDENet(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch  # x2(length, 12)
         del batch
-        x1 = x[:, :10 * 224 * 224].reshape(-1, 10, 224, 224)
-        x2 = x[:, 10 * 224 * 224:].reshape(-1, 9)
+        x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
+        x2 = x[:, 11 * 224 * 224:].reshape(-1, 9)
         del x
         # x_sm = torch.empty(len(x2), 2)
         # x_lstm = torch.empty(len(x2), 25 * 5) # hidden_size * num_layers

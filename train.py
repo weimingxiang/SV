@@ -367,7 +367,7 @@ else:
     torch.save(all_n_list, data_dir + '/all_n_list' + '.pt')
 
 
-my_label = "10+9channel_predict"
+my_label = "7channel_predict"
 
 logger = TensorBoardLogger(os.path.join("/home/xwm/DeepSVFilter/code", "channel_predict"), name=my_label)
 
@@ -401,7 +401,7 @@ def main_train():
 
 
 
-    resume = "./checkpoints_predict/" + my_label + "/epoch=04-validation_mean=0.95-train_mean=0.95.ckpt"
+    resume = "./checkpoints_predict/" + my_label + "/epoch=33-validation_mean=0.95-train_mean=0.97.ckpt"
 
     trainer = pl.Trainer(
         max_epochs=200,
@@ -411,7 +411,7 @@ def main_train():
         logger=logger,
         # val_percent_check=0,
         callbacks=[checkpoint_callback],
-        resume_from_checkpoint=resume
+        # resume_from_checkpoint=resume
     )
 
     trainer.fit(model)
