@@ -25,7 +25,7 @@ sam_file.close()
 
 hight = 224
 
-all_p_img = torch.empty(22199, 3+3+4, hight, hight)
+all_p_img = torch.empty(22199, 3+4+4, hight, hight)
 # all_n_img = torch.empty(22199, 3+3+4, hight, hight)
 
 # all_p_list = torch.empty(22199, 512, 9)
@@ -39,7 +39,7 @@ for chromosome, chr_len in zip(chr_list, chr_length):
     print("img start")
     t_positive_img = torch.load(data_dir + 'image/' + chromosome + '/positive_img' + '.pt') # 3
     # t_negative_img = torch.load(data_dir + 'image/' + chromosome + '/negative_img' + '.pt')
-    positive_img_mid = torch.load(data_dir + 'image/' + chromosome + '/positive_img_mid' + '.pt') # 3
+    positive_img_mid = torch.load(data_dir + 'image/' + chromosome + '/positive_img_mids' + '.pt') # 3
     # negative_img_mid = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mid' + '.pt')
     # positive_img_i = torch.load(data_dir + 'image/' + chromosome + '/positive_img_m(i)d' + '.pt')
     # negative_img_i = torch.load(data_dir + 'image/' + chromosome + '/negative_img_m(i)d' + '.pt')
@@ -61,13 +61,13 @@ for chromosome, chr_len in zip(chr_list, chr_length):
     # all_n_img[index:index + length, :3, :, :] = t_negative_img
 
     # all_positive_img_mid[a2:a2 + length] = positive_img_mid
-    all_p_img[index:index + length, 3:6, :, :] = positive_img_mid
+    all_p_img[index:index + length, 3:7, :, :] = positive_img_mid
     # all_negative_img_mid[b2:b2 + length] = negative_img_mid
     # all_n_img[index:index + length, 3:6, :, :] = negative_img_mid
 
 
     # all_positive_cigar_img[a3:a3 + length] = positive_cigar_img
-    all_p_img[index:index + length, 6:, :, :] = positive_cigar_img
+    all_p_img[index:index + length, 7:, :, :] = positive_cigar_img
     # all_negative_cigar_img[b3:b3 + length] = negative_cigar_img
     # all_n_img[index:index + length, 6:, :, :] = negative_cigar_img
 
@@ -114,7 +114,7 @@ for chromosome, chr_len in zip(chr_list, chr_length):
     # t_positive_img = torch.load(data_dir + 'image/' + chromosome + '/positive_img' + '.pt') # 3
     t_negative_img = torch.load(data_dir + 'image/' + chromosome + '/negative_img' + '.pt')
     # positive_img_mid = torch.load(data_dir + 'image/' + chromosome + '/positive_img_mid' + '.pt') # 3
-    negative_img_mid = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mid' + '.pt')
+    negative_img_mid = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mids' + '.pt')
     # positive_img_i = torch.load(data_dir + 'image/' + chromosome + '/positive_img_m(i)d' + '.pt')
     # negative_img_i = torch.load(data_dir + 'image/' + chromosome + '/negative_img_m(i)d' + '.pt')
     print("img end")
@@ -137,13 +137,13 @@ for chromosome, chr_len in zip(chr_list, chr_length):
     # all_positive_img_mid[a2:a2 + length] = positive_img_mid
     # all_p_img[index:index + length, 3:6, :, :] = positive_img_mid
     # all_negative_img_mid[b2:b2 + length] = negative_img_mid
-    all_n_img[index:index + length, 3:6, :, :] = negative_img_mid
+    all_n_img[index:index + length, 3:7, :, :] = negative_img_mid
 
 
     # all_positive_cigar_img[a3:a3 + length] = positive_cigar_img
     # all_p_img[index:index + length, 6:, :, :] = positive_cigar_img
     # all_negative_cigar_img[b3:b3 + length] = negative_cigar_img
-    all_n_img[index:index + length, 6:, :, :] = negative_cigar_img
+    all_n_img[index:index + length, 7:, :, :] = negative_cigar_img
 
 
     # all_positive_img_i_list[index:index + length] = positive_img_i_list
