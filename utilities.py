@@ -136,9 +136,9 @@ class IdentifyDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         if index % 2 ==0:
-            return torch.cat((self.positive_img[int(index / 2)].reshape(-1), self.p_list[int(index / 2)].reshape(-1))), 1
+            return self.positive_img[int(index / 2), :7], 1
         else:
-            return torch.cat((self.negative_img[int(index / 2)].reshape(-1), self.n_list[int(index / 2)].reshape(-1))), 0
+            return self.negative_img[int(index / 2), :7], 0
 
 
 def MaxMinNormalization(x):

@@ -57,7 +57,7 @@ if os.path.exists(data_dir + '/all_p_img' + '.pt') and not all_enforcement_refre
     # all_p_img, all_n_img = pool.imap(torch.load, [data_dir + '/all_p_img' + '.pt', data_dir + '/all_n_img' + '.pt'])
     # all_positive_img_i_list = torch.load(data_dir + '/all_p_list' + '.pt')
     # all_negative_img_i_list = torch.load(data_dir + '/all_n_list' + '.pt')
-    all_p_list, all_n_list = pool.imap(torch.load, [data_dir + '/all_p_list' + '.pt', data_dir + '/all_n_list' + '.pt'])
+    # all_p_list, all_n_list = pool.imap(torch.load, [data_dir + '/all_p_list' + '.pt', data_dir + '/all_n_list' + '.pt'])
 
     pool.close()
     print("loaded")
@@ -391,11 +391,15 @@ checkpoint_callback = ModelCheckpoint(
 def main_train():
     config = {
         "lr": 1e-6,
-        "batch_size": 12,
+        "batch_size": 64,
         "beta1": 0.9,
         "conv2d_dim_stride": 1,
         "classfication_dim_stride": 400,
     }
+
+    all_p_list = torch.empty(len(all_p_img), 1)
+    all_n_list = torch.empty(len(all_n_img), 1)
+
 
     model = IDENet(all_p_img, all_n_img, all_p_list, all_n_list, config)
 
