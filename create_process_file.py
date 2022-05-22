@@ -199,7 +199,6 @@ def p(sum_data):
 
     # copy begin
     print("deal " + chromosome)
-
     # # 1
     # mid_sign = process(bam_path, chromosome, chr_len, data_dir)
     # torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
@@ -278,7 +277,7 @@ def p(sum_data):
     print("cigar end")
 
     # copy end
-    torch.save(1, data_dir + 'flag/' + chromosome + '.txt2')
+    torch.save(1, data_dir + 'flag/' + chromosome + '.txt')
 
 
 

@@ -35,7 +35,7 @@ hight = 224
 
 data_list = []
 for chromosome, chr_len in zip(chr_list, chr_length):
-    if not os.path.exists(data_dir + 'flag/' + chromosome + '.txt2'):
+    if not os.path.exists(data_dir + 'flag/' + chromosome + '.txt'):
         data_list.append((chromosome, chr_len))
 
 
