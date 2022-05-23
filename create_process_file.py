@@ -17,6 +17,7 @@ import pysam
 from itertools import repeat
 from functools import partial
 import time
+import list2img
 
 # from cython.parallel import prange, parallel, threadid
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -94,7 +95,6 @@ def get_hm(records):
     """
     调和平均
     """
-    records = records
     return len(records) / sum([1 / x for x in records])
 
 def get_cv(records): #标准分和变异系数
@@ -230,7 +230,12 @@ def p(sum_data):
     # 3
     mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
 
-    mid_sign_img = mid_list2img(mid_sign_list, chromosome)
+    # mid_sign_img = mid_list2img(mid_sign_list, chromosome)
+    mid_sign_img = torch.tensor(list2img.deal_list(mid_sign_list))
+
+
+    del mid_sign_list
+
     ut.mymkdir(data_dir + "chromosome_img/")
     torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign12.pt")
 
