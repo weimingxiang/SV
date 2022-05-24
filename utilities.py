@@ -14,6 +14,8 @@ import torchvision
 from multiprocessing import Pool, cpu_count
 import pysam
 import time
+import csv
+import codecs
 
 hight = 224
 resize = torchvision.transforms.Resize([hight, hight])
@@ -36,6 +38,14 @@ resize = torchvision.transforms.Resize([hight, hight])
 #     q = q1 - 1.5 * (q3 - q1)
 #     q2 = length / 2  # 中位数
 #     return pos2value(lis, q), pos2value(lis, q1), pos2value(lis, q2), pos2value(lis, q3), pos2value(lis, q4)
+
+def data_write_csv(file_name, datas):#file_name为写入CSV文件的路径，datas为要写入数据列表
+    file_csv = codecs.open(file_name,'w+','utf-8')#追加
+    writer = csv.writer(file_csv, delimiter=' ', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+    for data in datas:
+        writer.writerow(data)
+    print("保存文件成功，处理结束")
+
 
 def get_rms(records):
     """
@@ -62,7 +72,7 @@ def get_cv(records): #标准分和变异系数
     cv = std / mean
     return mean, std, cv
 
-def mid_list2img(mid_sign_list, chromosome):
+def mid_list2img(mid_sign_list, chromosome): # c++ 提高速度版本 list2img
     mid_sign_img = torch.zeros(len(mid_sign_list), 9)
     for i, mid_sign in enumerate(mid_sign_list):
         if i % 50000 == 0:
@@ -119,16 +129,20 @@ def to_input_image(imgs, rd_depth_mean, hight = 112):
     return ims
 
 class IdentifyDataset(torch.utils.data.Dataset):
-    def __init__(self, positive_img, negative_img, p_list, n_list):
+    def __init__(self, path):
 
-        self.positive_img = positive_img
-        self.negative_img = negative_img
-        self.p_list = p_list
-        self.n_list = n_list
+        # self.positive_img = positive_img
+        # self.negative_img = negative_img
+        # self.p_list = p_list
+        # self.n_list = n_list
 
         # self._positive_img = to_input_image(positive_img, rd_depth_mean)
         # self._negative_img = to_input_image(negative_img, rd_depth_mean)
-        self._len = len(positive_img) + len(negative_img)
+
+        self.pfile_list = os.listdir(path + "positive_data")
+        self.nfile_list = os.listdir(path + "negative_data")
+        self.path = path
+        self._len = len(self.pfile_list) + len(self.pfile_list)
         # print(self._len)
 
     def __len__(self):
@@ -136,9 +150,12 @@ class IdentifyDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         if index % 2 ==0:
-            return self.positive_img[int(index / 2), :7], 1
+            data = torch.load(self.path + "positive_data/" + self.pfile_list[int(index / 2)])
+            return {"image":data[0], "list":data[1]}, 1
         else:
-            return self.negative_img[int(index / 2), :7], 0
+            data = torch.load(self.path + "negative_data/" + self.nfile_list[int(index / 2)])
+            return {"image":data[0], "list":data[1]}, 0
+
 
 
 def MaxMinNormalization(x):

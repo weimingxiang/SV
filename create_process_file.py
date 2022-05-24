@@ -108,19 +108,7 @@ def mid_list2img(mid_sign_list, chromosome):
     for i, mid_sign in enumerate(mid_sign_list):
         if i % 50000 == 0:
             print(str(chromosome) + "\t" + str(i))
-        mid_sign_img[i, 0] = len(mid_sign)
-        if mid_sign_img[i, 0] == 1:
-            continue
-        mid_sign = np.array(mid_sign[1:])
-        mid_sign_img[i, 1], mid_sign_img[i, 2], mid_sign_img[i, 3], mid_sign_img[i, 4], mid_sign_img[i, 5] = np.quantile(mid_sign, [0, 0.25, 0.5, 0.75, 1], interpolation='linear')
-        # mid_sign_img[i, 0], mid_sign_img[i, 1], mid_sign_img[i, 2], mid_sign_img[i, 3], mid_sign_img[i, 4] = count_quartiles_median(mid_sign) # 四分位
-        # mid_sign_img[i, 5] = np.mean(mid_sign)
-        # mid_sign_img[i, 6] = np.std(mid_sign)
-        # mid_sign_img[i, 7] = len(mid_sign)
-        mid_sign_img[i, 6] = get_rms(mid_sign)
-        # mid_sign_img[i, 7] = get_gm(mid_sign, i)
-        mid_sign_img[i, 7] = get_hm(mid_sign)
-        mid_sign_img[i, 8], mid_sign_img[i, 9], mid_sign_img[i, 10] = get_cv(mid_sign)
+        mid_sign_img[i] = torch.tensor(list2img.deal_list(mid_sign_list))
 
     return mid_sign_img
 
@@ -233,11 +221,14 @@ def p(sum_data):
     # mid_sign_img = mid_list2img(mid_sign_list, chromosome)
     mid_sign_img = torch.tensor(list2img.deal_list(mid_sign_list))
 
-
     del mid_sign_list
 
     ut.mymkdir(data_dir + "chromosome_img/")
     torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign12.pt")
+
+
+    # mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+    # ut.data_write_csv(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.csv", mid_sign_list)
 
     # p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
     # n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')

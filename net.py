@@ -107,7 +107,7 @@ class conv2ds_sequential(nn.Module):
 
 class IDENet(pl.LightningModule):
 
-    def __init__(self, positive_img, negative_img, p_list, n_list, config):
+    def __init__(self, path, config):
         super(IDENet, self).__init__()
 
         self.lr = config["lr"]
@@ -115,11 +115,13 @@ class IDENet(pl.LightningModule):
         self.batch_size = config["batch_size"]
         self.conv2d_dim_stride = config["conv2d_dim_stride"]  # [1, 3]
         self.classfication_dim_stride = config["classfication_dim_stride"] #[1, 997]
+        self.albert_dim_stride = config["albert_dim_stride"]
 
-        self.positive_img = positive_img
-        self.negative_img = negative_img
-        self.p_list = p_list
-        self.n_list = n_list
+        self.path = path
+        # self.positive_img = positive_img
+        # self.negative_img = negative_img
+        # self.p_list = p_list
+        # self.n_list = n_list
 
         # self.conv2ds = nn.Sequential(
         #     nn.Conv2d(in_channels=9, out_channels=8, kernel_size=3, stride=1, padding=1),
@@ -129,7 +131,7 @@ class IDENet(pl.LightningModule):
         #     nn.Conv2d(in_channels=5, out_channels=4, kernel_size=3, stride=1, padding=1),
         #     nn.Conv2d(in_channels=4, out_channels=3, kernel_size=3, stride=1, padding=1),
         # )
-        conv2d_dim = list(range(7, 3, -self.conv2d_dim_stride))
+        conv2d_dim = list(range(11, 3, -self.conv2d_dim_stride))
         conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
 
@@ -138,8 +140,8 @@ class IDENet(pl.LightningModule):
         # self.attention = attention(1000, 500)
 
         # full_dim = [1000, 500, 250, 125, 62, 31, 15, 7]
-        full_dim = range(1000 + 768, 2, -self.classfication_dim_stride) # 1000 -> 2
-        full_dim = [1000, 1000, 500, 50, 10]
+        full_dim = range(1000 + 768, 2, -self.classfication_dim_stride) # 1000 + 768 -> 2
+        # full_dim = [1000 + 768, 1000, 500, 50, 10]
         self.classfication = attention_classfication(full_dim)
 
         self.softmax = nn.Sequential(
@@ -158,18 +160,24 @@ class IDENet(pl.LightningModule):
         # self.pool = nn.MaxPool1d(2, stride=2)
         # self.conv1d = nn.Conv1d(in_channels=1, out_channels = 512, kernel_size = 2)
 
-        # full_dim = [9, 16, 32, 64, 128]
-        # self.albert_fullconnect = MultiLP(full_dim)
+        # full_dim = [11, 16, 32, 64, 128]
+        full_dim = list(range(11, 128, self.albert_dim_stride)) # 1000 + 768 -> 2
+        full_dim.append(128) # 6 -> 3
+        self.albert_fullconnect = MultiLP(full_dim)
         # self.conv1d = torch.nn.Conv1d(in_channels=128, out_channels = 128, kernel_size = 2, stride  = 1)
 
-        # self.bert = AlbertModel.from_pretrained("albert-base-v2")
+        self.bert = AlbertModel.from_pretrained("albert-base-v2")
 
 
 
     def training_step(self, batch, batch_idx):
-        x1, y = batch  # x2(length, 12)
+        x, y = batch  # x2(length, 12)
         del batch
+        x1 = x["image"]
+        x2 = x["list"]
+        del x
         # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
+
         # x2 = x[:, 11 * 224 * 224:].reshape(-1, 9)
         # del x
         # x_sm = torch.empty(len(x2), 2)
@@ -199,10 +207,10 @@ class IDENet(pl.LightningModule):
         #     output_attentions=None,
         #     output_hidden_states=None,
         #     return_dict=None)
-        # x2 = x2.reshape(-1, 9)  # b, 512, 9
-        # x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
+        x2 = x2.reshape(-1, 11)  # b, 512, 9
+        x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
             # n * 128
-        # x2 = self.bert(inputs_embeds=x2)[1]
+        x2 = self.bert(inputs_embeds=x2)[1]
         # output = self.bert(input_ids=None,
         #     attention_mask=None,
         #     token_type_ids=None,
@@ -219,6 +227,8 @@ class IDENet(pl.LightningModule):
         # for i, xx in enumerate(x2):
         #     x_lstm[i] = self.lstm_layer(xx.unsqueeze(0)).reshape(-1)
 
+
+
         y_t = torch.empty(len(y), 2)
         for i, y_item in enumerate(y):
             if y_item == 0:
@@ -228,8 +238,8 @@ class IDENet(pl.LightningModule):
 
         x1 = self.conv2ds(x1)
         x1 = self.resnet_model(x1)
-        # y_hat = self.classfication(torch.cat([x1, x2], 1))
-        y_hat = self.classfication(x1)
+        y_hat = self.classfication(torch.cat([x1, x2], 1))
+        # y_hat = self.classfication(x1)
 
         # y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
@@ -249,8 +259,11 @@ class IDENet(pl.LightningModule):
         self.log('train_mean', torch.mean(torch.tensor(prediction)), on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
     def validation_step(self, batch, batch_idx):
-        x1, y = batch  # x2(length, 12)
+        x, y = batch  # x2(length, 12)
         del batch
+        x1 = x["image"]
+        x2 = x["list"]
+        del x
         # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
 
         # x2 = x[:, 11 * 224 * 224:].reshape(-1, 9)
@@ -282,10 +295,10 @@ class IDENet(pl.LightningModule):
         #     output_attentions=None,
         #     output_hidden_states=None,
         #     return_dict=None)
-        # x2 = x2.reshape(-1, 9)  # b, 512, 9
-        # x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
+        x2 = x2.reshape(-1, 11)  # b, 512, 9
+        x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
             # n * 128
-        # x2 = self.bert(inputs_embeds=x2)[1]
+        x2 = self.bert(inputs_embeds=x2)[1]
         # output = self.bert(input_ids=None,
         #     attention_mask=None,
         #     token_type_ids=None,
@@ -313,8 +326,8 @@ class IDENet(pl.LightningModule):
 
         x1 = self.conv2ds(x1)
         x1 = self.resnet_model(x1)
-        # y_hat = self.classfication(torch.cat([x1, x2], 1))
-        y_hat = self.classfication(x1)
+        y_hat = self.classfication(torch.cat([x1, x2], 1))
+        # y_hat = self.classfication(x1)
 
         # y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
@@ -347,7 +360,7 @@ class IDENet(pl.LightningModule):
     def prepare_data(self):
 
         train_proportion = 0.8
-        input_data = ut.IdentifyDataset(self.positive_img, self.negative_img, self.p_list, self.n_list)
+        input_data = ut.IdentifyDataset(self.path)
         dataset_size = len(input_data)
         indices = list(range(dataset_size))
         split = int(np.floor(train_proportion * dataset_size))
@@ -358,13 +371,13 @@ class IDENet(pl.LightningModule):
         self.test_dataset= Subset(input_data, test_indices)
 
     def train_dataloader(self):
-        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/4), shuffle=True) # sampler=self.wsampler)
+        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()), shuffle=True) # sampler=self.wsampler)
 
     def val_dataloader(self):
-        return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/4))
+        return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()))
 
     def test_dataloader(self):
-        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()/4))
+        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()))
 
     # @property
     # def automatic_optimization(self):

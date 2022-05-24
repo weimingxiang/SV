@@ -24,12 +24,14 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
     TuneReportCheckpointCallback
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1, 3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 3"
 
 
 seed_everything(2022)
 
-data_dir = "../datasets/NA12878_PacBio_MtSinai/"
+# data_dir = "../datasets/NA12878_PacBio_MtSinai/"
+data_dir = "/home/xwm/DeepSVFilter/datasets/NA12878_PacBio_MtSinai/"
+
 
 bam_path = data_dir + "sorted_final_merged.bam"
 
@@ -50,16 +52,16 @@ sam_file.close()
 hight = 224
 
 if os.path.exists(data_dir + '/all_p_img' + '.pt') and not all_enforcement_refresh:
-    pool = Pool(2)
-    print("loading")
-    all_p_img = torch.load(data_dir + '/all_p_img' + '.pt')
-    all_n_img = torch.load(data_dir + '/all_n_img' + '.pt')
-    # all_p_img, all_n_img = pool.imap(torch.load, [data_dir + '/all_p_img' + '.pt', data_dir + '/all_n_img' + '.pt'])
-    # all_positive_img_i_list = torch.load(data_dir + '/all_p_list' + '.pt')
-    # all_negative_img_i_list = torch.load(data_dir + '/all_n_list' + '.pt')
-    # all_p_list, all_n_list = pool.imap(torch.load, [data_dir + '/all_p_list' + '.pt', data_dir + '/all_n_list' + '.pt'])
+    # pool = Pool(2)
+    # print("loading")
+    # all_p_img = torch.load(data_dir + '/all_p_img' + '.pt')
+    # all_n_img = torch.load(data_dir + '/all_n_img' + '.pt')
+    # # all_p_img, all_n_img = pool.imap(torch.load, [data_dir + '/all_p_img' + '.pt', data_dir + '/all_n_img' + '.pt'])
+    # # all_positive_img_i_list = torch.load(data_dir + '/all_p_list' + '.pt')
+    # # all_negative_img_i_list = torch.load(data_dir + '/all_n_list' + '.pt')
+    # # all_p_list, all_n_list = pool.imap(torch.load, [data_dir + '/all_p_list' + '.pt', data_dir + '/all_n_list' + '.pt'])
 
-    pool.close()
+    # pool.close()
     print("loaded")
 else:
     all_positive_img = torch.empty(0, 3, hight, hight)
@@ -185,8 +187,8 @@ else:
             negative_img = [[] for _ in range(len(n_position))]
             positive_img_mid = torch.empty(len(p_position), 4, hight, hight)
             negative_img_mid = torch.empty(len(n_position), 4, hight, hight)
-            positive_img_i = torch.empty(len(p_position), 512, 9)
-            negative_img_i = torch.empty(len(n_position), 512, 9)
+            positive_img_i = torch.empty(len(p_position), 512, 11)
+            negative_img_i = torch.empty(len(n_position), 512, 11)
 
 
             # insert_chromosome = insert_result_data[insert_result_data["CHROM"] == chromosome]
@@ -219,7 +221,7 @@ else:
             #     #f negative_cigar_img = torch.cat((negative_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
             #     negative_cigar_img = torch.cat((negative_cigar_img, ut.cigar_img_single(bam_path, chromosome, begin, end).unsqueeze(0)), 0)
 
-            resize = torchvision.transforms.Resize([512, 9])
+            resize = torchvision.transforms.Resize([512, 11])
 
             for i, b_e in enumerate(p_position):
                 positive_img[i] = chromosome_sign[:, b_e[0]:b_e[1]] # dim 3
@@ -367,7 +369,7 @@ else:
     torch.save(all_n_list, data_dir + '/all_n_list' + '.pt')
 
 
-my_label = "7channel_predict"
+my_label = "11+11channel_predict"
 
 logger = TensorBoardLogger(os.path.join("/home/xwm/DeepSVFilter/code", "channel_predict"), name=my_label)
 
@@ -391,17 +393,16 @@ checkpoint_callback = ModelCheckpoint(
 def main_train():
     config = {
         "lr": 1e-6,
-        "batch_size": 64,
+        "batch_size": 15,
         "beta1": 0.9,
         "conv2d_dim_stride": 1,
         "classfication_dim_stride": 400,
+        "albert_dim_stride": 12
     }
 
-    all_p_list = torch.empty(len(all_p_img), 1)
-    all_n_list = torch.empty(len(all_n_img), 1)
 
 
-    model = IDENet(all_p_img, all_n_img, all_p_list, all_n_list, config)
+    model = IDENet(data_dir, config)
 
 
 
@@ -423,7 +424,7 @@ def main_train():
 
 def train_tune(config, checkpoint_dir=None, num_epochs=200, num_gpus=1):
     # config.update(ori_config)
-    model = IDENet(all_p_img, all_n_img, config)
+    model = IDENet(data_dir, config)
     trainer = pl.Trainer(
         max_epochs=num_epochs,
         gpus=num_gpus,
@@ -436,11 +437,12 @@ def train_tune(config, checkpoint_dir=None, num_epochs=200, num_gpus=1):
 
 def gan_tune(num_samples=250, num_epochs=200, gpus_per_trial=1):
     config = {
-        "lr": tune.loguniform(1e-6, 1e-3),
-        "batch_size": tune.choice([32, 64]),
+        "lr": tune.loguniform(1e-7, 1e-2),
+        "batch_size": 4,
         "beta1": tune.uniform(0, 1),
         "conv2d_dim_stride": tune.lograndint(1, 6),
-        "classfication_dim_stride": tune.lograndint(1, 997),
+        "classfication_dim_stride": tune.lograndint(10, 800),
+        "albert_dim_stride": tune.lograndint(2, 50)
     }
 
     # bayesopt = HyperOptSearch(config, metric="prc_value", mode="max")
@@ -451,7 +453,7 @@ def gan_tune(num_samples=250, num_epochs=200, gpus_per_trial=1):
         mode='max')
 
     reporter = CLIReporter(
-        parameter_columns=["lr", "batch_size", 'beta1', 'conv2d_dim_stride', "classfication_dim_stride"],
+        parameter_columns=["lr", 'beta1', 'conv2d_dim_stride', "classfication_dim_stride", "albert_dim_stride"],
         metric_columns=["train_mean", "validation_mean"])
 
     analysis = tune.run(
@@ -461,7 +463,7 @@ def gan_tune(num_samples=250, num_epochs=200, gpus_per_trial=1):
         ),
         local_dir="/home/xwm/DeepSVFilter/code/",
         resources_per_trial={
-            "cpu": 16,
+            "cpu": 4,
             "gpu": gpus_per_trial
         },
         metric="validation_mean",
@@ -475,7 +477,7 @@ def gan_tune(num_samples=250, num_epochs=200, gpus_per_trial=1):
 
 
 
-main_train()
-# ray.init(num_cpus=8, num_gpus=2)
-# ray.init()
-# gan_tune()
+# main_train()
+# ray.init(num_cpus=12, num_gpus=3)
+ray.init()
+gan_tune()
