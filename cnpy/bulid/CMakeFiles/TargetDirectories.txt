@@ -1,0 +1,9 @@
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/install.dir
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/list_install_components.dir
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/rebuild_cache.dir
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/cnpy.dir
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/example1.dir
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/install/strip.dir
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/install/local.dir
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/cnpy-static.dir
+/home/xwm/DeepSVFilter/cnpy/bulid/CMakeFiles/edit_cache.dir
