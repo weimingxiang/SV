@@ -1,0 +1,8 @@
+{
+  "albert_dim_stride": 18,
+  "batch_size": 10,
+  "beta1": 0.49905781085198797,
+  "classfication_dim_stride": 12,
+  "conv2d_dim_stride": 1,
+  "lr": 1.1137637252951047e-07
+}
