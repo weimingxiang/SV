@@ -1,0 +1,664 @@
+m4trace:configure.ac:26: -1- m4_pattern_forbid([^_?A[CHUM]_])
+m4trace:configure.ac:26: -1- m4_pattern_forbid([_AC_])
+m4trace:configure.ac:26: -1- m4_pattern_forbid([^LIBOBJS$], [do not use LIBOBJS directly, use AC_LIBOBJ (see section `AC_LIBOBJ vs LIBOBJS'])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^AS_FLAGS$])
+m4trace:configure.ac:26: -1- m4_pattern_forbid([^_?m4_])
+m4trace:configure.ac:26: -1- m4_pattern_forbid([^dnl$])
+m4trace:configure.ac:26: -1- m4_pattern_forbid([^_?AS_])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^SHELL$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PATH_SEPARATOR$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_NAME$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_TARNAME$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_VERSION$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_STRING$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_BUGREPORT$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_URL$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^exec_prefix$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^prefix$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^program_transform_name$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^bindir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^sbindir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^libexecdir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^datarootdir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^datadir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^sysconfdir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^sharedstatedir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^localstatedir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^includedir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^oldincludedir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^docdir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^infodir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^htmldir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^dvidir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^pdfdir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^psdir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^libdir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^localedir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^mandir$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_NAME$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_TARNAME$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_VERSION$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_STRING$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_BUGREPORT$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^PACKAGE_URL$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^DEFS$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^ECHO_C$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^ECHO_N$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^ECHO_T$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^LIBS$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^build_alias$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^host_alias$])
+m4trace:configure.ac:26: -1- m4_pattern_allow([^target_alias$])
+m4trace:configure.ac:32: -1- m4_include([m4/hts_prog_cc_warnings.m4])
+m4trace:m4/hts_prog_cc_warnings.m4:27: -1- AC_DEFUN([HTS_PROG_CC_WARNINGS], [
+  AC_ARG_ENABLE([warnings],
+    [AS_HELP_STRING([--disable-warnings], [turn off compiler warnings])],
+    [],
+    [enable_warnings=yes])
+
+  AS_IF([test "x$enable_warnings" != xno],[
+    AC_REQUIRE([AC_PROG_GREP])
+
+    ansi="$1"
+    AS_IF([test "x$ansi" = "x"],
+          [msg="for C compiler warning flags"],
+          [msg="for C compiler warning and ANSI conformance flags"])
+
+    AC_MSG_CHECKING($msg)
+    AC_CACHE_VAL(hts_cv_prog_cc_warnings,[dnl
+      hts_cv_prog_cc_warnings=""
+      AS_IF([test "x$CC" != "x"],[
+        cat > conftest.c <<EOF
+int main(int argc, char **argv) { return 0; }
+EOF
+
+dnl Most compilers print some kind of a version string with some command
+dnl line options (often "-V").  The version string should be checked
+dnl before doing a test compilation run with compiler-specific flags.
+dnl This is because some compilers (like the Cray compiler) only
+dnl produce a warning message for unknown flags instead of returning
+dnl an error, resulting in a false positive.  Also, compilers may do
+dnl erratic things when invoked with flags meant for a different
+dnl compiler.
+
+dnl We attempt to strip out any flags that are already on CFLAGS.
+dnl If an option needs more than one word (e.g. see Cray below) then
+dnl they should be separated by hash signs (#), which will be converted
+dnl to spaces before comparing and possibly adding to CFLAGS.
+dnl This separator will need to be changed if a new compiler ever needs
+dnl an option that includes a hash sign...
+
+        # Tests for flags to enable C compiler warnings
+        # GCC compatible
+        AS_IF([test "x$GCC" = "xyes" &&
+               "$CC" -c -Wall conftest.c > /dev/null 2>&1 &&
+               test -f conftest.o],[dnl
+          AS_IF([test "x$ansi" = "x"],
+                [hts_cv_prog_cc_warnings="-Wall"],
+                [hts_cv_prog_cc_warnings="-Wall -ansi -pedantic"])
+        ],
+        # Sun Studio or Solaris C compiler
+        ["$CC" -V 2>&1 | $GREP -i -E "WorkShop|Sun C" > /dev/null 2>&1 &&
+         "$CC" -c -v -Xc conftest.c > /dev/null 2>&1 &&
+         test -f conftest.o],[dnl
+          AS_IF([test "x$ansi" = "x"],
+                [hts_cv_prog_cc_warnings="-v"],
+                [hts_cv_prog_cc_warnings="-v -Xc"])
+        ],
+        # Digital Unix C compiler
+        ["$CC" -V 2>&1 | $GREP -i "Digital UNIX Compiler" > /dev/null 2>&1 &&
+         "$CC" -c -verbose -w0 -warnprotos -std1 conftest.c > /dev/null 2>&1 &&
+         test -f conftest.o],[dnl
+          AS_IF([test "x$ansi" = "x"],
+                [hts_cv_prog_cc_warnings="-verbose -w0 -warnprotos"],
+                [hts_cv_prog_cc_warnings="-verbose -w0 -warnprotos -std1"])
+        ],
+        # C for AIX Compiler
+        ["$CC" 2>&1 | $GREP -i "C for AIX Compiler" > /dev/null 2>&1 &&
+         "$CC" -c -qlanglvl=ansi -qinfo=all conftest.c > /dev/null 2>&1 &&
+         test -f conftest.o],[dnl
+          AS_IF([test "x$ansi" = "x"],
+                [hts_cv_prog_cc_warnings="-qsrcmsg -qinfo=all:noppt:noppc:noobs:nocnd"],
+                [hts_cv_prog_cc_warnings="-qsrcmsg -qinfo=all:noppt:noppc:noobs:nocnd -qlanglvl=ansi"])
+        ],
+        # IRIX C compiler
+        ["$CC" -version 2>&1 | $GREP -i "MIPSpro Compilers" > /dev/null 2>&1 &&
+         "$CC" -c -fullwarn -ansi -ansiE conftest.c > /dev/null 2>&1 &&
+         test -f conftest.o],[dnl
+          AS_IF([test "x$ansi" = "x"],
+                [hts_cv_prog_cc_warnings="-fullwarn"],
+                [hts_cv_prog_cc_warnings="-fullwarn -ansi -ansiE"])
+        ],
+        # HP-UX C compiler
+        [what "$CC" 2>&1 | $GREP -i "HP C Compiler" > /dev/null 2>&1 &&
+         "$CC" -c -Aa +w1 conftest.c > /dev/null 2>&1 &&
+         test -f conftest.o],[dnl
+          AS_IF([test "x$ansi" = "x"],
+                [hts_cv_prog_cc_warnings="+w1"],
+                [hts_cv_prog_cc_warnings="+w1 -Aa"])
+        ],
+        # The NEC SX series (Super-UX 10) C compiler
+        ["$CC" -V 2>&1 | $GREP "/SX" > /dev/null 2>&1 &&
+         "$CC" -c -pvctl[,]fullmsg -Xc conftest.c > /dev/null 2>&1 &&
+         test -f conftest.o],[dnl
+          AS_IF([test "x$ansi" = "x"],
+                [hts_cv_prog_cc_warnings="-pvctl[,]fullmsg"],
+                [hts_cv_prog_cc_warnings="-pvctl[,]fullmsg -Xc"])
+        ],
+        # The Cray C compiler (Unicos)
+        ["$CC" -V 2>&1 | $GREP -i "Cray" > /dev/null 2>&1 &&
+         "$CC" -c -h msglevel_2 conftest.c > /dev/null 2>&1 &&
+         test -f conftest.o],[dnl
+          AS_IF([test "x$ansi" = "x"],
+                [hts_cv_prog_cc_warnings="-h#msglevel_2"],
+                [hts_cv_prog_cc_warnings="-h#msglevel_2,conform"])
+        ],
+        # The Tiny C Compiler
+        ["$CC" -v 2>&1 | $GREP "tcc version" > /dev/null &&
+         "$CC" -Wall -c conftest.c > /dev/null 2>&1 &&
+         test -f conftest.o],[dnl
+         hts_cv_prog_cc_warnings="-Wall"
+        ])
+        rm -f conftest.*
+      ])
+    ])
+
+    AS_IF([test "x$hts_cv_prog_cc_warnings" != "x"],[
+dnl Print result, with underscores as spaces
+ac_arg_result=`echo "$hts_cv_prog_cc_warnings" | tr '#' ' '`
+AC_MSG_RESULT($ac_arg_result)
+
+dnl Add options to CFLAGS only if they are not already present
+ac_arg_needed=""
+for ac_arg in $hts_cv_prog_cc_warnings
+do
+  ac_arg_sp=`echo "$ac_arg" | tr '#' ' '`
+  AS_CASE([" $CFLAGS "],
+[*" $ac_arg_sp "*], [],
+[ac_arg_needed="$ac_arg_all $ac_arg_sp"])
+done
+CFLAGS="$ac_arg_needed $CFLAGS"],[dnl
+      AC_MSG_RESULT(unknown)
+    ])
+  ])
+])
+m4trace:m4/hts_prog_cc_warnings.m4:167: -1- AC_DEFUN([HTS_PROG_CC_WERROR], [
+  AC_ARG_ENABLE([werror],
+    [AS_HELP_STRING([--enable-werror], [change warnings into errors, where supported])],
+    [],
+    [enable_werror=no])
+
+  AS_IF([test "x$enable_werror" != xno],[
+    AC_MSG_CHECKING([for C compiler flags to error on warnings])
+    AC_CACHE_VAL(hts_cv_prog_cc_werror,[dnl
+      hts_cv_prog_cc_werror=""
+      AS_IF([test "x$CC" != "x"],[
+        cat > conftest.c <<EOF
+int main(int argc, char **argv) { return 0; }
+EOF
+
+        AS_IF(dnl
+         # Tests for flags to make the C compiler treat warnings as errors
+         # GCC compatible
+         [test "x$GCC" = "xyes" &&
+          "$CC" -c -Werror conftest.c > /dev/null 2>&1 &&
+          test -f conftest.o],[hts_cv_prog_cc_werror="-Werror"],
+         # Sun Studio or Solaris C compiler
+         ["$CC" -V 2>&1 | $GREP -i -E "WorkShop|Sun C" > /dev/null 2>&1 &&
+          "$CC" -c -errwarn=%all conftest.c > /dev/null 2>&1 &&
+          test -f conftest.o],[hts_cv_prog_cc_werror="-errwarn=%all"],
+         # The Tiny C Compiler
+         ["$CC" -v 2>&1 | $GREP "tcc version" > /dev/null &&
+          "$CC" -Wall -c conftest.c > /dev/null 2>&1 &&
+          test -f conftest.o],[hts_cv_prog_cc_werror="-Werror"]
+         dnl TODO: Add more compilers
+        )
+        rm -f conftest.*
+      ])
+    ])
+    AS_IF([test "x$hts_cv_prog_cc_werror" != x],[dnl
+      AC_MSG_RESULT($hts_cv_prog_cc_werror)
+      AS_IF([test "x$1" != x],[eval AS_TR_SH([$1])="$hts_cv_prog_cc_werror"])
+    ],[dnl
+      AC_MSG_RESULT(unknown)
+    ])
+  ])
+])
+m4trace:configure.ac:33: -1- m4_include([m4/hts_with_curses.m4])
+m4trace:m4/hts_with_curses.m4:246: -1- AU_DEFUN([MP_WITH_CURSES], [m4_if($#, 0, [HTS_WITH_CURSES], [HTS_WITH_CURSES($@)])])
+m4trace:m4/hts_with_curses.m4:246: -1- AC_DEFUN([MP_WITH_CURSES], [AC_DIAGNOSE([obsolete], [The macro `MP_WITH_CURSES' is obsolete.
+You should run autoupdate.])dnl
+m4_if($#, 0, [HTS_WITH_CURSES], [HTS_WITH_CURSES($@)])])
+m4trace:m4/hts_with_curses.m4:247: -1- AC_DEFUN([HTS_WITH_CURSES], [
+    AC_ARG_VAR([CURSES_LIB], [linker library for Curses, e.g. -lcurses])
+    AC_ARG_WITH([ncurses], [AS_HELP_STRING([--with-ncurses],
+        [force the use of Ncurses or NcursesW])],
+        [], [with_ncurses=check])
+    AC_ARG_WITH([ncursesw], [AS_HELP_STRING([--without-ncursesw],
+        [do not use NcursesW (wide character support)])],
+        [], [with_ncursesw=check])
+
+    ax_saved_LIBS=$LIBS
+    AS_IF([test "x$with_ncurses" = xyes || test "x$with_ncursesw" = xyes],
+        [ax_with_plaincurses=no], [ax_with_plaincurses=check])
+
+    ax_cv_curses_which=no
+
+    # Test for NcursesW
+
+    AS_IF([test "x$CURSES_LIB" = x && test "x$with_ncursesw" != xno], [
+        LIBS="$ax_saved_LIBS -lncursesw"
+
+        AC_CACHE_CHECK([for NcursesW wide-character library], [ax_cv_ncursesw], [
+            AC_LINK_IFELSE([AC_LANG_CALL([], [initscr])],
+                [ax_cv_ncursesw=yes], [ax_cv_ncursesw=no])
+        ])
+        AS_IF([test "x$ax_cv_ncursesw" = xno && test "x$with_ncursesw" = xyes], [
+            AC_MSG_ERROR([--with-ncursesw specified but could not find NcursesW library])
+        ])
+
+        AS_IF([test "x$ax_cv_ncursesw" = xyes], [
+            HTS_NCURSESW_HEADERS_CHECK([for working ncursesw/curses.h],
+                                       [ax_cv_header_ncursesw_curses_h],
+                                       [ncursesw/curses.h],
+                                       [test "x$ax_cv_curses_which" = xno])
+            AS_IF([test "x$ax_cv_header_ncursesw_curses_h" = xyes], [
+                AC_DEFINE([HAVE_NCURSESW_CURSES_H], [1], [Define to 1 if <ncursesw/curses.h> is present])
+                ax_cv_curses_which=ncursesw
+            ])
+            HTS_NCURSESW_HEADERS_CHECK([for working ncursesw.h],
+                                       [ax_cv_header_ncursesw_h],
+                                       [ncursesw.h],
+                                       [test "x$ax_cv_curses_which" = xno])
+            AS_IF([test "x$ax_cv_header_ncursesw_h" = xyes], [
+                AC_DEFINE([HAVE_NCURSESW_H],      [1], [Define to 1 if <ncursesw.h> is present])
+                ax_cv_curses_which=ncursesw
+            ])
+            HTS_NCURSESW_HEADERS_CHECK([for working ncurses.h],
+                                       [ax_cv_header_ncurses_h_with_ncursesw],
+                                       [ncurses.h],
+                                       [test "x$ax_cv_curses_which" = xno])
+            AS_IF([test "x$ax_cv_header_ncurses_h_with_ncursesw" = xyes], [
+                AC_DEFINE([HAVE_NCURSES_H],       [1], [Define to 1 if <ncurses.h> is present])
+                ax_cv_curses_which=ncursesw
+            ])
+            HTS_NCURSESW_HEADERS_CHECK([for working ncurses/curses.h],
+                                       [ax_cv_header_ncurses_curses_h_with_ncursesw],
+                                       [ncurses/curses.h],
+                                       [test "x$ax_cv_curses_which" = xno])
+            AS_IF([test "x$ax_cv_header_ncurses_curses_h_with_ncursesw" = xyes], [
+                AC_DEFINE([HAVE_NCURSES_CURSES_H], [1], [Define to 1 if <ncurses/curses.h> is present])
+                ax_cv_curses_which=ncursesw
+            ])
+            AS_IF([test "x$ax_cv_curses_which" = xncursesw], [
+                ax_cv_curses=yes
+                ax_cv_curses_enhanced=yes
+                ax_cv_curses_color=yes
+                ax_cv_curses_obsolete=yes
+                CURSES_LIB="-lncursesw"
+                AC_DEFINE([HAVE_NCURSESW], [1], [Define to 1 if the NcursesW library is present])
+                AC_DEFINE([HAVE_CURSES],   [1], [Define to 1 if a SysV or X/Open compatible Curses library is present])
+                AC_DEFINE([HAVE_CURSES_ENHANCED], [1], [Define to 1 if library supports X/Open Enhanced functions])
+                AC_DEFINE([HAVE_CURSES_COLOR],    [1], [Define to 1 if library supports color (enhanced functions)])
+                AC_DEFINE([HAVE_CURSES_OBSOLETE], [1], [Define to 1 if library supports certain obsolete features])
+              ], [
+                AS_IF([test "x$with_ncursesw" = xyes], [
+                    AC_MSG_ERROR([--with-ncursesw specified but could not find NcursesW header])
+                ], [
+                    AC_MSG_WARN([could not find a working ncursesw/curses.h, ncursesw.h or ncurses.h])
+                ])
+            ])
+        ])
+    ])
+
+    # Test for Ncurses
+
+    AS_IF([test "x$CURSES_LIB" = x && test "x$with_ncurses" != xno && test "x$ax_cv_curses_which" = xno], [
+        LIBS="$ax_saved_LIBS -lncurses"
+
+        AC_CACHE_CHECK([for Ncurses library], [ax_cv_ncurses], [
+            AC_LINK_IFELSE([AC_LANG_CALL([], [initscr])],
+                [ax_cv_ncurses=yes], [ax_cv_ncurses=no])
+        ])
+        AS_IF([test "x$ax_cv_ncurses" = xno && test "x$with_ncurses" = xyes], [
+            AC_MSG_ERROR([--with-ncurses specified but could not find Ncurses library])
+        ])
+
+        AS_IF([test "x$ax_cv_ncurses" = xyes], [
+            HTS_NCURSES_HEADERS_CHECK([for working ncurses/curses.h],
+                                      [ax_cv_header_ncurses_curses_h],
+                                      [ncurses/curses.h],
+                                      [test "x$ax_cv_curses_which" = xno])
+            AS_IF([test "x$ax_cv_header_ncurses_curses_h" = xyes], [
+                AC_DEFINE([HAVE_NCURSES_CURSES_H], [1], [Define to 1 if <ncurses/curses.h> is present])
+                ax_cv_curses_which=ncurses
+            ])
+
+            HTS_NCURSES_HEADERS_CHECK([for working ncurses.h],
+                                      [ax_cv_header_ncurses_h],
+                                      [ncurses.h],
+                                      [test "x$ax_cv_curses_which" = xno])
+            AS_IF([test "x$ax_cv_header_ncurses_h" = xyes], [
+                AC_DEFINE([HAVE_NCURSES_H],       [1], [Define to 1 if <ncurses.h> is present])
+                ax_cv_curses_which=ncurses
+            ])
+
+            AS_IF([test "x$ax_cv_curses_which" = xncurses], [
+                ax_cv_curses=yes
+                ax_cv_curses_color=yes
+                ax_cv_curses_obsolete=yes
+                CURSES_LIB="-lncurses"
+                AC_DEFINE([HAVE_NCURSES], [1], [Define to 1 if the Ncurses library is present])
+                AC_DEFINE([HAVE_CURSES],  [1], [Define to 1 if a SysV or X/Open compatible Curses library is present])
+                AC_DEFINE([HAVE_CURSES_COLOR],    [1], [Define to 1 if library supports color (enhanced functions)])
+                AC_DEFINE([HAVE_CURSES_OBSOLETE], [1], [Define to 1 if library supports certain obsolete features])
+              ], [
+                AS_IF([test "x$with_ncurses" = xyes], [
+                    AC_MSG_ERROR([--with-ncurses specified but could not find Ncurses header])
+                ], [
+                    AC_MSG_WARN([could not find a working ncurses/curses.h or ncurses.h])
+                ])
+            ])
+        ])
+    ])
+
+    # Test for plain Curses (or if CURSES_LIB was set by user)
+
+    AS_IF([test "x$with_plaincurses" != xno && test "x$ax_cv_curses_which" = xno], [
+        AS_IF([test "x$CURSES_LIB" != x], [
+            LIBS="$ax_saved_LIBS $CURSES_LIB"
+        ], [
+            LIBS="$ax_saved_LIBS -lcurses"
+        ])
+
+        AC_CACHE_CHECK([for Curses library], [ax_cv_plaincurses], [
+            AC_LINK_IFELSE([AC_LANG_CALL([], [initscr])],
+                [ax_cv_plaincurses=yes], [ax_cv_plaincurses=no])
+        ])
+
+        AS_IF([test "x$ax_cv_plaincurses" = xyes], [
+
+            # Check for base conformance (and header file)
+
+            AC_CACHE_CHECK([for working curses.h], [ax_cv_header_curses_h], [
+                AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+                        @%:@include <curses.h>
+                    ]], [[
+                        chtype a = A_BOLD;
+                        int b = KEY_LEFT;
+                        initscr();
+                    ]])],
+                    [ax_cv_header_curses_h=yes],
+                    [ax_cv_header_curses_h=no])
+            ])
+            AS_IF([test "x$ax_cv_header_curses_h" = xyes], [
+                ax_cv_curses=yes
+                ax_cv_curses_which=plaincurses
+                AS_IF([test "x$CURSES_LIB" = x], [
+                    CURSES_LIB="-lcurses"
+                ])
+                AC_DEFINE([HAVE_CURSES], [1], [Define to 1 if a SysV or X/Open compatible Curses library is present])
+                AC_DEFINE([HAVE_CURSES_H], [1], [Define to 1 if <curses.h> is present])
+
+                # Check for X/Open Enhanced conformance
+
+                AC_CACHE_CHECK([for X/Open Enhanced Curses conformance], [ax_cv_plaincurses_enhanced], [
+                    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+                            @%:@define _XOPEN_SOURCE_EXTENDED 1
+                            @%:@include <curses.h>
+                            @%:@ifndef _XOPEN_CURSES
+                            @%:@error "this Curses library is not enhanced"
+                            "this Curses library is not enhanced"
+                            @%:@endif
+                        ]], [[
+                            chtype a = A_BOLD;
+                            int b = KEY_LEFT;
+                            chtype c = COLOR_PAIR(1) & A_COLOR;
+                            attr_t d = WA_NORMAL;
+                            cchar_t e;
+                            wint_t f;
+                            initscr();
+                            init_pair(1, COLOR_WHITE, COLOR_RED);
+                            wattr_set(stdscr, d, 0, NULL);
+                            wget_wch(stdscr, &f);
+                        ]])],
+                        [ax_cv_plaincurses_enhanced=yes],
+                        [ax_cv_plaincurses_enhanced=no])
+                ])
+                AS_IF([test "x$ax_cv_plaincurses_enhanced" = xyes], [
+                    ax_cv_curses_enhanced=yes
+                    ax_cv_curses_color=yes
+                    AC_DEFINE([HAVE_CURSES_ENHANCED], [1], [Define to 1 if library supports X/Open Enhanced functions])
+                    AC_DEFINE([HAVE_CURSES_COLOR],    [1], [Define to 1 if library supports color (enhanced functions)])
+                ])
+
+                # Check for color functions
+
+                AC_CACHE_CHECK([for Curses color functions], [ax_cv_plaincurses_color], [
+                    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+                        @%:@define _XOPEN_SOURCE_EXTENDED 1
+                        @%:@include <curses.h>
+                        ]], [[
+                            chtype a = A_BOLD;
+                            int b = KEY_LEFT;
+                            chtype c = COLOR_PAIR(1) & A_COLOR;
+                            initscr();
+                            init_pair(1, COLOR_WHITE, COLOR_RED);
+                        ]])],
+                        [ax_cv_plaincurses_color=yes],
+                        [ax_cv_plaincurses_color=no])
+                ])
+                AS_IF([test "x$ax_cv_plaincurses_color" = xyes], [
+                    ax_cv_curses_color=yes
+                    AC_DEFINE([HAVE_CURSES_COLOR], [1], [Define to 1 if library supports color (enhanced functions)])
+                ])
+
+                # Check for obsolete functions
+
+                AC_CACHE_CHECK([for obsolete Curses functions], [ax_cv_plaincurses_obsolete], [
+                AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+                        @%:@include <curses.h>
+                    ]], [[
+                        chtype a = A_BOLD;
+                        int b = KEY_LEFT;
+                        int g = getattrs(stdscr);
+                        int h = getcurx(stdscr) + getmaxx(stdscr);
+                        initscr();
+                    ]])],
+                    [ax_cv_plaincurses_obsolete=yes],
+                    [ax_cv_plaincurses_obsolete=no])
+                ])
+                AS_IF([test "x$ax_cv_plaincurses_obsolete" = xyes], [
+                    ax_cv_curses_obsolete=yes
+                    AC_DEFINE([HAVE_CURSES_OBSOLETE], [1], [Define to 1 if library supports certain obsolete features])
+                ])
+            ])
+
+            AS_IF([test "x$ax_cv_header_curses_h" = xno], [
+                AC_MSG_WARN([could not find a working curses.h])
+            ])
+        ])
+    ])
+
+    AS_IF([test "x$ax_cv_curses_which" != xno], [
+        # Normally linking curses gets tinfo as well, but this doesn't
+        # always happen.  Check to see if it needs to be added explicitly.
+        AC_SEARCH_LIBS(cbreak, tinfo)
+        AS_CASE([$ac_cv_search_cbreak],
+                [-l*],[CURSES_LIB="$CURSES_LIB $ac_cv_search_cbreak"
+                       LIBS="$LIBS $ac_cv_search_cbreak"])
+    ])
+
+    AS_IF([test "x$ax_cv_curses"          != xyes], [ax_cv_curses=no])
+    AS_IF([test "x$ax_cv_curses_enhanced" != xyes], [ax_cv_curses_enhanced=no])
+    AS_IF([test "x$ax_cv_curses_color"    != xyes], [ax_cv_curses_color=no])
+    AS_IF([test "x$ax_cv_curses_obsolete" != xyes], [ax_cv_curses_obsolete=no])
+
+    LIBS=$ax_saved_LIBS
+])
+m4trace:configure.ac:34: -1- m4_include([m4/ax_with_htslib.m4])
+m4trace:m4/ax_with_htslib.m4:55: -1- AC_DEFUN([AX_WITH_HTSLIB], [AC_ARG_WITH([htslib],
+  [AS_HELP_STRING([--with-htslib=DIR],
+    [use the HTSlib source tree or installation in DIR])
+dnl Not indented, to avoid extra whitespace outwith AS_HELP_STRING()
+AS_HELP_STRING([--with-htslib=system],
+    [use only a system HTSlib installation])],
+  [], [with_htslib=search])
+AC_ARG_ENABLE([configure-htslib],
+  [AS_HELP_STRING([--enable-configure-htslib],
+     [run configure for htslib as well @<:@default=only_in_subdir@:>@])],
+  [], [enable_configure_htslib=only_in_subdir])
+
+case $with_htslib in
+yes|search)
+  AC_MSG_CHECKING([location of HTSlib source tree])
+  case $srcdir in
+    .) srcp= ;;
+    *) srcp=$srcdir/ ;;
+  esac
+  found=
+  for dir in ${srcp}htslib* -- ${srcp}../htslib -- ${srcp}../htslib*
+  do
+    if test "$dir" = "--"; then
+      test -n "$found" && break
+    elif test -f "$dir/hts.c" && test -f "$dir/htslib/hts.h"; then
+      found="${found}1"
+      HTSDIR=$dir
+    fi
+  done
+  if test -z "$found"; then
+    AC_MSG_RESULT([none found])
+    ax_cv_htslib_which=system
+  elif test "$found" = 1; then
+    AC_MSG_RESULT([$HTSDIR])
+    ax_cv_htslib_which=source
+    if test "x$enable_configure_htslib" = "xonly_in_subdir" ; then
+      case $HTSDIR in
+        "${srcp}htslib"*) enable_configure_htslib=yes ;;
+        *) ;;
+      esac
+    fi
+  else
+    AC_MSG_RESULT([several directories found])
+    AC_MSG_ERROR([use --with-htslib=DIR to select which HTSlib to use])
+  fi
+  ;;
+no) ax_cv_htslib_which=none ;;
+system) ax_cv_htslib_which=system ;;
+*)
+  HTSDIR=$with_htslib
+  if test -f "$HTSDIR/hts.c" && test -f "$HTSDIR/htslib/hts.h"; then
+    ax_cv_htslib_which=source
+  elif test -f "$HTSDIR/htslib_vars.mk"; then
+    ax_cv_htslib_which=build
+  else
+    ax_cv_htslib_which=install
+  fi
+  ;;
+esac
+
+case $ax_cv_htslib_which in
+source)
+  ax_cv_htslib=yes
+  HTSLIB_CPPFLAGS="-I$HTSDIR"
+  HTSLIB_LDFLAGS="-L$HTSDIR"
+  if test "x$enable_configure_htslib" = "xyes"; then
+    # We can't use a literal, because $HTSDIR is user-provided and variable
+    AC_CONFIG_SUBDIRS($HTSDIR)
+  fi
+  ;;
+build)
+  ax_cv_htslib=yes
+  ax_cv_htslib_which=source
+  # Ensure this is fully expanded, as the caller might not be using @HTSDIR@
+  HTSSRCDIR=$(sed -n 's:\$(HTSDIR):'$HTSDIR':
+                      s/^HTSSRCDIR *= *//p' "$HTSDIR/htslib_vars.mk")
+  HTSLIB_CPPFLAGS="-I$HTSSRCDIR"
+  HTSLIB_LDFLAGS="-L$HTSDIR"
+  ;;
+system)
+  AC_CHECK_HEADER([htslib/sam.h],
+    [AC_CHECK_LIB(hts, hts_version, [ax_cv_htslib=yes], [ax_cv_htslib=no])],
+    [ax_cv_htslib=no], [;])
+  ax_cv_htslib_which=install
+  HTSDIR=
+  HTSLIB_CPPFLAGS=
+  HTSLIB_LDFLAGS=
+  ;;
+install)
+  ax_saved_CPPFLAGS=$CPPFLAGS
+  ax_saved_LDFLAGS=$LDFLAGS
+  HTSLIB_CPPFLAGS="-I$HTSDIR/include"
+  HTSLIB_LDFLAGS="-L$HTSDIR/lib"
+  CPPFLAGS="$CPPFLAGS $HTSLIB_CPPFLAGS"
+  LDFLAGS="$LDFLAGS $HTSLIB_LDFLAGS"
+  AC_CHECK_HEADER([htslib/sam.h],
+    [AC_CHECK_LIB(hts, hts_version, [ax_cv_htslib=yes], [ax_cv_htslib=no])],
+    [ax_cv_htslib=no], [;])
+  HTSDIR=
+  CPPFLAGS=$ax_saved_CPPFLAGS
+  LDFLAGS=$ax_saved_LDFLAGS
+  ;;
+none)
+  ax_cv_htslib=no
+  ;;
+esac
+
+AC_SUBST([HTSDIR])
+AC_SUBST([HTSLIB_CPPFLAGS])
+AC_SUBST([HTSLIB_LDFLAGS])])
+m4trace:configure.ac:53: -1- m4_pattern_allow([^AWK$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^CC$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^CFLAGS$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^LDFLAGS$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^LIBS$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^CPPFLAGS$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^CC$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^CC$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^CC$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^CC$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^ac_ct_CC$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^EXEEXT$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^OBJEXT$])
+m4trace:configure.ac:57: -1- HTS_PROG_CC_WARNINGS
+m4trace:configure.ac:57: -1- m4_pattern_allow([^GREP$])
+m4trace:configure.ac:60: -1- HTS_PROG_CC_WERROR([hts_late_cflags])
+m4trace:configure.ac:62: -1- m4_pattern_allow([^_FILE_OFFSET_BITS$])
+m4trace:configure.ac:62: -1- m4_pattern_allow([^_LARGE_FILES$])
+m4trace:configure.ac:64: -1- AX_WITH_HTSLIB
+m4trace:configure.ac:64: -1- _m4_warn([syntax], [AC_CONFIG_SUBDIRS: you should use literals], [../../lib/autoconf/status.m4:1097: AC_CONFIG_SUBDIRS is expanded from...
+m4/ax_with_htslib.m4:55: AX_WITH_HTSLIB is expanded from...
+configure.ac:64: the top level])
+m4trace:configure.ac:64: -1- m4_pattern_allow([^subdirs$])
+m4trace:configure.ac:64: -1- m4_pattern_allow([^HTSDIR$])
+m4trace:configure.ac:64: -1- m4_pattern_allow([^HTSLIB_CPPFLAGS$])
+m4trace:configure.ac:64: -1- m4_pattern_allow([^HTSLIB_LDFLAGS$])
+m4trace:configure.ac:83: -1- m4_pattern_allow([^Hsource$])
+m4trace:configure.ac:84: -1- m4_pattern_allow([^Hinstall$])
+m4trace:configure.ac:91: -1- HTS_WITH_CURSES
+m4trace:configure.ac:91: -1- m4_pattern_allow([^CURSES_LIB$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_NCURSESW_CURSES_H$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_NCURSESW_H$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_NCURSES_H$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_NCURSES_CURSES_H$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_NCURSESW$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_ENHANCED$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_COLOR$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_OBSOLETE$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_NCURSES_CURSES_H$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_NCURSES_H$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_NCURSES$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_COLOR$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_OBSOLETE$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_H$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_ENHANCED$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_COLOR$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_COLOR$])
+m4trace:configure.ac:91: -1- m4_pattern_allow([^HAVE_CURSES_OBSOLETE$])
+m4trace:configure.ac:106: -1- m4_pattern_allow([^CURSES_LIB$])
+m4trace:configure.ac:113: -1- m4_pattern_allow([^HAVE_LIBZ$])
+m4trace:configure.ac:148: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:148: -1- m4_pattern_allow([^LTLIBOBJS$])
