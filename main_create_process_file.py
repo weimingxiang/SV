@@ -40,6 +40,9 @@ for chromosome, chr_len in zip(chr_list, chr_length):
 
 
 for chr, len in data_list:
+    d = subprocess.getoutput("ps -aux | grep xwm | grep python | grep len | awk '{print $14}'").split()
+    if chr in d:
+        continue
     print("python create_process_file.py --chr " + chr + " --len " + str(len))
     # subprocess.call("python create_process_file.py --chr " + chr + " --len " + str(len), shell = True)
     # fd = open(chr + ".txt")
