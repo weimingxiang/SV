@@ -1,3 +1,6 @@
+// c++ -O3 -Wall -shared -std=c++11 -fPIC -fopenmp $(python3 -m pybind11 --includes) list2img.cpp -o list2img$(python3-config --extension-suffix)
+// create dynamic link library
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <iostream>
@@ -40,10 +43,10 @@ float get_hm(vector<float> records)
 vector<vector<float>> deal_list(vector<vector<float>> &mid_sign_list)
 {
     vector<vector<float>> mid_sign_img(mid_sign_list.size(), vector<float>(11));
-#pragma omp parallel for num_threads(16) schedule(dynamic, 1000)
+#pragma omp parallel for schedule(dynamic, 1000)
     for (int i = 0; i < mid_sign_list.size(); i++)
     {
-        if (i % 50000 == 0)
+        if (i % 100000 == 0)
         {
             cout << i << endl;
         }
@@ -74,11 +77,49 @@ vector<vector<float>> deal_list(vector<vector<float>> &mid_sign_list)
         for_each(begin(mid_sign), end(mid_sign), [&](const double d)
                  { accum += (d - mean) * (d - mean); });
 
-        mid_sign_img[i][9] = sqrt(accum / (mid_sign.size() - 1)); //方差
+        mid_sign_img[i][9] = sqrt(accum / mid_sign.size()); //方差
         mid_sign_img[i][10] = mid_sign_img[i][9] / mid_sign_img[i][8];
     }
     return mid_sign_img;
 }
+
+// vector<float> deal_list(vector<float> &mid_sign)
+// {
+//     vector<float> mid_sign_img(11, 0);
+
+//     mid_sign_img[0] = mid_sign.size();
+
+//     if (mid_sign_img[0] == 1)
+//         return mid_sign_img;
+
+//     vector<float>::iterator k = mid_sign.begin();
+//     mid_sign.erase(k);
+
+//     sort(mid_sign.begin(), mid_sign.end());
+
+//     int len = mid_sign.size();
+
+//     mid_sign_img[1] = mid_sign[0];
+//     mid_sign_img[2] = mid_sign[len / 4];
+//     mid_sign_img[3] = mid_sign[len / 2];
+//     mid_sign_img[4] = mid_sign[len * 3 / 4];
+//     mid_sign_img[5] = mid_sign[len - 1];
+//     mid_sign_img[6] = get_rms(mid_sign);
+//     mid_sign_img[7] = get_hm(mid_sign);
+
+//     double sum = accumulate(begin(mid_sign), end(mid_sign), 0.0);
+//     double mean = sum / mid_sign.size(); //均值
+
+//     mid_sign_img[8] = mean;
+//     double accum = 0.0;
+//     for_each(begin(mid_sign), end(mid_sign), [&](const double d)
+//              { accum += (d - mean) * (d - mean); });
+
+//     mid_sign_img[9] = sqrt(accum / (mid_sign.size() - 1)); //方差
+//     mid_sign_img[10] = mid_sign_img[9] / mid_sign_img[8];
+
+//     return mid_sign_img;
+// }
 
 PYBIND11_MODULE(list2img, m)
 {
