@@ -43,7 +43,7 @@ def draw_insertion(bam_path, chromosome, pic_length, data_dir):
     # bam_op_count = torch.zeros([9, pic_length], dtype=torch.int)
 
     for read in sam_file.fetch(chromosome):
-        if read.is_unmapped:
+        if read.is_unmapped or read.is_secondary:
             continue
         start, end = (read.reference_start, read.reference_end)
 

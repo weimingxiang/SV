@@ -103,30 +103,51 @@ def preprocess(bam_path, chromosome, chr_len, data_dir):
 
     return trans2img(bam_path, chromosome, chr_len, data_dir)
 
-def to_input_image(imgs, rd_depth_mean, hight = 112):
-    print("======= to input image begin =========")
+# def to_input_image(imgs, rd_depth_mean, hight = 112):
+#     print("======= to input image begin =========")
 
-    ims = torch.empty(len(imgs), 3, 224, 224)
-    for i, img in enumerate(imgs):
-        print("===== finish(to_input_image) " + str(i))
-        img = img - rd_depth_mean + hight / 2
-        img = torch.maximum(img, torch.tensor(0))
+#     ims = torch.empty(len(imgs), 3, 224, 224)
+#     for i, img in enumerate(imgs):
+#         print("===== finish(to_input_image) " + str(i))
+#         img = img - rd_depth_mean + hight / 2
+#         img = torch.maximum(img, torch.tensor(0))
 
-        pic_length = img.size()
-        im = torch.zeros(3, pic_length[-1], hight)
+#         pic_length = img.size()
+#         im = torch.zeros(3, pic_length[-1], hight)
 
-        for x in range(pic_length[-1]):
-            y = img[:, x].int()
-            for j in range(pic_length[0]):
-                im[j, x, :y[j]] = 255
-                y_float = img[j, x] - y[j]
-                im[j, x, y[j]:y[j]+1] = torch.round(255 * y_float)
+#         for x in range(pic_length[-1]):
+#             y = img[:, x].int()
+#             for j in range(pic_length[0]):
+#                 im[j, x, :y[j]] = 255
+#                 y_float = img[j, x] - y[j]
+#                 im[j, x, y[j]:y[j]+1] = torch.round(255 * y_float)
 
 
-        im = resize(im)
-        ims[i] = im
-    print("======= to input image end =========")
-    return ims
+#         im = resize(im)
+#         ims[i] = im
+#     print("======= to input image end =========")
+#     return ims
+
+
+def to_input_image_single(img): # todo
+    # img = img - rd_depth_mean + hight / 2
+    # img = torch.maximum(img, torch.tensor(0))
+    ims = torch.empty(len(img), hight, hight)
+    zoom = torch.empty(len(img))
+
+    for i, img_dim in enumerate(img): #
+        img_min = torch.min(img_dim)
+        img_hight = torch.max(img_dim) - img_min + 2
+        # print("img_hight========" + str(img_hight))
+        im = torch.zeros(len(img_dim), img_hight)
+
+        for x in range(len(img_dim)):
+            im[x, :img_dim[x] - img_min + 1] = 255
+
+        zoom[i] = img_hight / len(img_dim)
+        ims[i] = resize(im.unsqueeze(0))
+
+    return ims, zoom
 
 class IdentifyDataset(torch.utils.data.Dataset):
     def __init__(self, path):
@@ -139,22 +160,36 @@ class IdentifyDataset(torch.utils.data.Dataset):
         # self._positive_img = to_input_image(positive_img, rd_depth_mean)
         # self._negative_img = to_input_image(negative_img, rd_depth_mean)
 
-        self.pfile_list = os.listdir(path + "positive_data")
-        self.nfile_list = os.listdir(path + "negative_data")
+        self.pfile_list = os.listdir(path + "positive_img")
+        self.nfile_list = os.listdir(path + "negative_img")
         self.path = path
         self._len = len(self.pfile_list) + len(self.pfile_list)
-        # print(self._len)
+        # self.pool = Pool(3)
+        # self.pdata = [[] for _ in range(len(self.pfile_list))]
+        # self.ndata = [[] for _ in range(len(self.nfile_list))]
+        # # print(self._len)
+        # for index in range(int(self._len / 2)):
+        #     self.pdata[index] = torch.load(self.path + "positive_data/" + self.pfile_list[index])
+        #     self.ndata[index] = torch.load(self.path + "negative_data/" + self.nfile_list[index])
+
 
     def __len__(self):
         return self._len
 
     def __getitem__(self, index):
         if index % 2 ==0:
-            data = torch.load(self.path + "positive_data/" + self.pfile_list[int(index / 2)])
-            return {"image":data[0], "list":data[1]}, 1
+            # data = torch.load(self.path + "positive_data/" + self.pfile_list[int(index / 2)])
+            # data = self.pool.map(torch.load, [self.path + "positive_img/" + self.pfile_list[int(index / 2)], self.path + "positive_zoom/" + self.pfile_list[int(index / 2)], self.path + "positive_list/" + self.pfile_list[int(index / 2)]])
+            return {"image" : torch.load(self.path + "positive_img/" + self.pfile_list[int(index / 2)]), "zoom" : torch.load(self.path + "positive_zoom/" + self.pfile_list[int(index / 2)]), "list" : torch.load(self.path + "positive_list/" + self.pfile_list[int(index / 2)])}, 1
+            # return {"image":data[0], "zoom" : data[1], "list" : data[2]}, 1
         else:
-            data = torch.load(self.path + "negative_data/" + self.nfile_list[int(index / 2)])
-            return {"image":data[0], "list":data[1]}, 0
+            # data = torch.load(self.path + "negative_data/" + self.nfile_list[int(index / 2)])
+            # data = self.pool.map(torch.load, [self.path + "negative_img/" + self.nfile_list[int(index / 2)], self.path + "negative_zoom/" + self.nfile_list[int(index / 2)], self.path + "negative_list/" + self.nfile_list[int(index / 2)]])
+            return {"image" : torch.load(self.path + "negative_img/" + self.nfile_list[int(index / 2)]), "zoom" : torch.load(self.path + "negative_zoom/" + self.nfile_list[int(index / 2)]), "list" : torch.load(self.path + "negative_list/" + self.nfile_list[int(index / 2)])}, 1
+
+            # return {"image":data[0], "zoom" : data[1], "list" : data[2]}, 0
+
+
 
 
 

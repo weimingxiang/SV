@@ -22,9 +22,11 @@ from ray.tune.schedulers import ASHAScheduler, PopulationBasedTraining
 from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
     TuneReportCheckpointCallback
+import list2img
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 3"
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "1, 3"
 
 
 seed_everything(2022)
@@ -144,10 +146,16 @@ else:
             # pool = Pool()
             # t_positive_img, t_negative_img = pool.map(torch.load, [data_dir + 'image/' + chromosome + '/positive_img' + '.pt', data_dir + 'image/' + chromosome + '/negative_img' + '.pt'])
             # pool.close()
-            t_positive_img = torch.load(data_dir + 'image/' + chromosome + '/positive_img' + '.pt')
-            t_negative_img = torch.load(data_dir + 'image/' + chromosome + '/negative_img' + '.pt')
+            positive_img = torch.load(data_dir + 'image/' + chromosome + '/positive_img' + '.pt')
+            negative_img = torch.load(data_dir + 'image/' + chromosome + '/negative_img' + '.pt')
             positive_img_mid = torch.load(data_dir + 'image/' + chromosome + '/positive_img_mids' + '.pt')
             negative_img_mid = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mids' + '.pt')
+
+            positive_img_zoom = torch.load(data_dir + 'image/' + chromosome + '/positive_img_zoom' + '.pt')
+            negative_img_zoom = torch.load(data_dir + 'image/' + chromosome + '/negative_img_zoom' + '.pt')
+            positive_img_mid_zoom = torch.load(data_dir + 'image/' + chromosome + '/positive_img_mids_zoom' + '.pt')
+            negative_img_mid_zoom = torch.load(data_dir + 'image/' + chromosome + '/negative_img_mids_zoom' + '.pt')
+
             positive_img_i = torch.load(data_dir + 'image/' + chromosome + '/positive_img_m(i)d' + '.pt')
             negative_img_i = torch.load(data_dir + 'image/' + chromosome + '/negative_img_m(i)d' + '.pt')
 
@@ -169,7 +177,8 @@ else:
                 torch.save(chromosome_sign, data_dir + "chromosome_sign/" + chromosome + ".pt")
                 torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
                 torch.save(mid_sign_list, data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
-                mid_sign_img = ut.mid_list2img(mid_sign_list, chromosome)
+                # mid_sign_img = ut.mid_list2img(mid_sign_list, chromosome)
+                mid_sign_img = torch.tensor(list2img.deal_list(mid_sign_list))
                 ut.mymkdir(data_dir + "chromosome_img/")
                 torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
             #f # cigar
@@ -181,12 +190,16 @@ else:
             #     torch.save([chromosome_cigar, chromosome_cigar_len, refer_q_table], data_dir + "chromosome_cigar/" + chromosome + ".pt")
             #     # torch.save(chromosome_cigar, data_dir + "chromosome_cigar/" + chromosome + ".pt")
 
-            rd_depth_mean = torch.mean(chromosome_sign[2].float())
+            # rd_depth_mean = torch.mean(chromosome_sign[2].float())
 
-            positive_img = [[] for _ in range(len(p_position))]
-            negative_img = [[] for _ in range(len(n_position))]
+            positive_img = torch.empty(len(p_position), 3, hight, hight)
+            negative_img = torch.empty(len(n_position), 3, hight, hight)
+            positive_img_zoom = torch.empty(len(p_position), 3)
+            negative_img_zoom = torch.empty(len(n_position), 3)
             positive_img_mid = torch.empty(len(p_position), 4, hight, hight)
             negative_img_mid = torch.empty(len(n_position), 4, hight, hight)
+            positive_img_mid_zoom = torch.empty(len(p_position), 4)
+            negative_img_mid_zoom = torch.empty(len(n_position), 4)
             positive_img_i = torch.empty(len(p_position), 512, 11)
             negative_img_i = torch.empty(len(n_position), 512, 11)
 
@@ -224,35 +237,42 @@ else:
             resize = torchvision.transforms.Resize([512, 11])
 
             for i, b_e in enumerate(p_position):
-                positive_img[i] = chromosome_sign[:, b_e[0]:b_e[1]] # dim 3
-                positive_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
+                positive_img[i], positive_img_zoom[i] = ut.to_input_image_single(chromosome_sign[:, b_e[0]:b_e[1]]) # dim 3
+                positive_img_mid[i], positive_img_mid_zoom[i] = ut.to_input_image_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
                 positive_img_i[i] = resize(mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0))
                 print("===== finish(positive_img) " + chromosome + " " + str(i))
 
 
             for i, b_e in enumerate(n_position):
-                negative_img[i] = chromosome_sign[:, b_e[0]:b_e[1]]
-                negative_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
+                negative_img[i], negative_img_zoom[i] = ut.to_input_image_single(chromosome_sign[:, b_e[0]:b_e[1]])
+                negative_img_mid[i], negative_img_mid_zoom[i] = ut.to_input_image_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
                 negative_img_i[i] = resize(mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0))
 
                 print("===== finish(negative_img) " + chromosome + " " + str(i))
 
 
             # _positive_img, _negative_img = pool.starmap(ut.to_input_image, zip([positive_img, negative_img], [rd_depth_mean] * 2))
-            t_positive_img = ut.to_input_image(positive_img, rd_depth_mean)
-            t_negative_img = ut.to_input_image(negative_img, rd_depth_mean)
+            # t_positive_img = ut.to_input_image(positive_img, rd_depth_mean)
+            # t_negative_img = ut.to_input_image(negative_img, rd_depth_mean)
             print("save image start")
 
             save_path = data_dir + 'image/' + chromosome
 
             ut.mymkdir(save_path)
             # pool.starmap(torch.save, zip([_positive_img, _negative_img, positive_cigar_img, negative_cigar_img], [save_path + '/positive_img' + '.pt', save_path + '/negative_img' + '.pt', save_path + '/positive_cigar_img' + '.pt', save_path + '/negative_cigar_img' + '.pt']))
-            torch.save(t_positive_img, save_path + '/positive_img' + '.pt')
-            torch.save(t_negative_img, save_path + '/negative_img' + '.pt')
+            torch.save(positive_img, save_path + '/positive_img' + '.pt')
+            torch.save(negative_img, save_path + '/negative_img' + '.pt')
             torch.save(positive_img_mid, save_path + '/positive_img_mids' + '.pt')
             torch.save(negative_img_mid, save_path + '/negative_img_mids' + '.pt')
+
+            torch.save(positive_img_zoom, save_path + '/positive_img_zoom' + '.pt')
+            torch.save(negative_img_zoom, save_path + '/negative_img_zoom' + '.pt')
+            torch.save(positive_img_mid_zoom, save_path + '/positive_img_mids_zoom' + '.pt')
+            torch.save(negative_img_mid_zoom, save_path + '/negative_img_mids_zoom' + '.pt')
+
             torch.save(positive_img_i, save_path + '/positive_img_m(i)d' + '.pt')
             torch.save(negative_img_i, save_path + '/negative_img_m(i)d' + '.pt')
+
         print("img end")
 
         # img/positive_cigar_img
@@ -393,18 +413,15 @@ checkpoint_callback = ModelCheckpoint(
 def main_train():
     config = {
         "lr": 1e-6,
-        "batch_size": 15,
+        "batch_size": 8,
         "beta1": 0.9,
-        "conv2d_dim_stride": 1,
-        "classfication_dim_stride": 400,
-        "albert_dim_stride": 12
+        "classfication_dim_stride": 300,
+        "albert_dim_stride": 24
     }
 
 
 
     model = IDENet(data_dir, config)
-
-
 
     resume = "./checkpoints_predict/" + my_label + "/epoch=33-validation_mean=0.95-train_mean=0.97.ckpt"
 
@@ -435,10 +452,10 @@ def train_tune(config, checkpoint_dir=None, num_epochs=200, num_gpus=1):
     trainer.fit(model)
 
 
-def gan_tune(num_samples=250, num_epochs=200, gpus_per_trial=1):
+def gan_tune(num_samples=500, num_epochs=200, gpus_per_trial=1):
     config = {
         "lr": tune.loguniform(1e-7, 1e-2),
-        "batch_size": 4,
+        "batch_size": 10,
         "beta1": tune.uniform(0, 1),
         "conv2d_dim_stride": tune.lograndint(1, 6),
         "classfication_dim_stride": tune.lograndint(10, 800),
@@ -464,7 +481,7 @@ def gan_tune(num_samples=250, num_epochs=200, gpus_per_trial=1):
         local_dir="/home/xwm/DeepSVFilter/code/",
         resources_per_trial={
             "cpu": 4,
-            "gpu": gpus_per_trial
+            "gpu": 1,
         },
         metric="validation_mean",
         mode="max",
@@ -472,12 +489,13 @@ def gan_tune(num_samples=250, num_epochs=200, gpus_per_trial=1):
         num_samples=num_samples,
         # scheduler=scheduler,
         progress_reporter=reporter,
+        resume=True,
         # search_alg=re_search_alg,
         name="tune_asha")
 
 
 
-# main_train()
+main_train()
 # ray.init(num_cpus=12, num_gpus=3)
-ray.init()
-gan_tune()
+# ray.init()
+# gan_tune()

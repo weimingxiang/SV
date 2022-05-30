@@ -1,9 +1,19 @@
-import example
+import torchvision
 import torch
+
 
 data_dir = "../datasets/NA12878_PacBio_MtSinai/"
 
 
-mid_sign_list = torch.load(data_dir + "chromosome_sign/" + "chrM" + "_m(i)d_sign.pt")
+resize = torchvision.transforms.Resize([256, 11])
 
-example.deal_list(mid_sign_list)
+
+for index in range(22199):
+    a, b = torch.load(data_dir + '/positive_data/' + str(index) + '.pt')
+    torch.save([a, torch.squeeze(resize(b.unsqueeze(0)))], data_dir + '/positive_data/' + str(index) + '.pt')
+#     index += length
+
+# for i in range(len(n_position)):
+    a, b = torch.load(data_dir + '/negative_data/' + str(index) + '.pt')
+    torch.save([a, torch.squeeze(resize(b.unsqueeze(0)))], data_dir + '/negative_data/' + str(index) + '.pt')
+    print(index)
