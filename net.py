@@ -105,6 +105,22 @@ class conv2ds_sequential(nn.Module):
             out=layer(out)
         return out
 
+class conv2ds_after_resnet(nn.Module):
+    def __init__(self, in_dim, out_dim):
+        super(conv2ds_after_resnet, self).__init__()
+        self.layers=nn.ModuleList(
+            nn.Sequential(
+                nn.Conv2d(in_channels=k, out_channels=k+1, kernel_size=3, stride=1), # (m, 224, 224)
+                nn.BatchNorm2d(k+1),
+                nn.ReLU(inplace=True),
+            ) for k in range(in_dim, out_dim)
+        )
+    def forward(self,x):
+        out=x
+        for i,layer in enumerate(self.layers):
+            out=layer(out)
+        return out
+
 class IDENet(pl.LightningModule):
 
     def __init__(self, path, config):
@@ -115,7 +131,6 @@ class IDENet(pl.LightningModule):
         self.batch_size = config["batch_size"]
         # self.conv2d_dim_stride = config["conv2d_dim_stride"]  # [1, 3]
         self.classfication_dim_stride = config["classfication_dim_stride"] #[1, 997]
-        self.albert_dim_stride = config["albert_dim_stride"]
 
         self.path = path
         # self.positive_img = positive_img
@@ -132,20 +147,25 @@ class IDENet(pl.LightningModule):
         #     nn.Conv2d(in_channels=4, out_channels=3, kernel_size=3, stride=1, padding=1),
         # )
         # conv2d_dim = list(range(11, 3, -self.conv2d_dim_stride))
-        # conv2d_dim.append(3) # 6 -> 3
-        # self.conv2ds = conv2ds_sequential(conv2d_dim)
-
-        conv2d_dim = [1, 2, 3]
+        conv2d_dim = list(range(11, 3, -1))
+        conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
+
+        # conv2d_dim = [1, 2, 3]
+        # self.conv2ds = conv2ds_sequential(conv2d_dim)
 
         self.resnet_model = torchvision.models.resnet50(pretrained=True) # [224, 224] -> 1000
 
         # self.attention = attention(1000, 500)
-        full_dim = [1000 * 11, 500 * 11, 250 * 11, 125 * 11, 1375]
-        self.resnet_fullconnect = MultiLP(full_dim)
+        # full_dim = [1000 * 11, 500 * 11, 250 * 11, 125 * 11, 1375]
+        # self.resnet_fullconnect = MultiLP(full_dim)
+        # self.resnet_conv2ds = conv2ds_after_resnet(1, 6)
+        # full_dim = [990 * 6, 990 * 3, 495 * 3, 743]
+        # self.resnet_fullconnect = MultiLP(full_dim)
+
 
         # full_dim = [1000, 500, 250, 125, 62, 31, 15, 7]
-        full_dim = range(1375 + 768, 2, -self.classfication_dim_stride) # 1000 + 768 -> 2
+        full_dim = range(1000 + 768, 2, -self.classfication_dim_stride) # 1000 + 768 -> 2
         # full_dim = [1000 + 768, 1000, 500, 50, 10]
         self.classfication = attention_classfication(full_dim)
 
@@ -166,12 +186,17 @@ class IDENet(pl.LightningModule):
         # self.conv1d = nn.Conv1d(in_channels=1, out_channels = 512, kernel_size = 2)
 
         # full_dim = [11, 16, 32, 64, 128]
-        full_dim = list(range(11, 128, self.albert_dim_stride)) # 1000 + 768 -> 2
-        full_dim.append(128) # 6 -> 3
-        self.albert_fullconnect = MultiLP(full_dim)
+        # full_dim = list(range(11, 128, self.albert_dim_stride)) # 1000 + 768 -> 2
+        # full_dim.append(128) # 6 -> 3
+        # self.albert_fullconnect = MultiLP(full_dim)
         # self.conv1d = torch.nn.Conv1d(in_channels=128, out_channels = 128, kernel_size = 2, stride  = 1)
 
         self.bert = AlbertModel.from_pretrained("albert-base-v2")
+        self.bert.embeddings.word_embeddings = nn.modules.sparse.Embedding(30000, 11, padding_idx=0)
+        self.bert.embeddings.position_embeddings = nn.modules.sparse.Embedding(512, 11)
+        self.bert.embeddings.token_type_embeddings = nn.modules.sparse.Embedding(2, 11)
+        self.bert.embeddings.LayerNorm = nn.modules.normalization.LayerNorm((11,), eps=1e-12, elementwise_affine=True)
+        self.bert.encoder.embedding_hidden_mapping_in = nn.modules.linear.Linear(in_features=11, out_features=768, bias=True)
 
 
 
@@ -180,14 +205,9 @@ class IDENet(pl.LightningModule):
         del batch
         x1 = x["image"]
         x2 = x["list"]
-        x3 = x["zoom"]
 
-        feature = torch.empty(x1.shape[0], x1.shape[1], 1000).cuda()
-        for dim in range(x1.shape[1] - 4): # 11
-            x = self.conv2ds(x1[:, dim:dim + 1, :, :])
-            feature[:, dim] = (self.resnet_model(x).T * x3[:, dim]).T # (a.T * b).T
-
-        x1 = self.resnet_fullconnect(feature.reshape(feature.shape[0], -1))
+        x1 = self.conv2ds(x1)
+        x1 = self.resnet_model(x1)
 
         # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
 
@@ -221,9 +241,9 @@ class IDENet(pl.LightningModule):
         #     output_hidden_states=None,
         #     return_dict=None)
 
-        x2 = x2.reshape(-1, 11)  # b, 256, 9
-        x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
-            # n * 128
+        # x2 = x2.reshape(-1, 11)  # b, 256, 11
+        # x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
+        #     # n * 128
         x2 = self.bert(inputs_embeds=x2)[1]
 
         # output = self.bert(input_ids=None,
@@ -242,7 +262,7 @@ class IDENet(pl.LightningModule):
         # for i, xx in enumerate(x2):
         #     x_lstm[i] = self.lstm_layer(xx.unsqueeze(0)).reshape(-1)
 
-        y_t = torch.empty(len(y), 2)
+        y_t = torch.empty(len(y), 2).cuda()
         for i, y_item in enumerate(y):
             if y_item == 0:
                 y_t[i] = torch.tensor([1, 0])
@@ -255,7 +275,7 @@ class IDENet(pl.LightningModule):
 
         # y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
-        loss = self.criterion(y_hat, y_t.cuda())
+        loss = self.criterion(y_hat, y_t)
 
         # logs metrics for each training_step,
         # and the average across the epoch, to the progress bar and logger
@@ -275,18 +295,9 @@ class IDENet(pl.LightningModule):
         del batch
         x1 = x["image"]
         x2 = x["list"]
-        x3 = x["zoom"]
 
-        feature = torch.empty(x1.shape[0], x1.shape[1], 1000).cuda()
-        # set_trace()
-        for dim in range(x1.shape[1] - 4): # 11
-            x = self.conv2ds(x1[:, dim:dim + 1, :, :])
-            feature[:, dim] = (self.resnet_model(x).T * x3[:, dim]).T # (a.T * b).T
-        for dim in range(x1.shape[1] - 4, x1.shape[1]): # 11
-            x = self.conv2ds(x1[:, dim:dim + 1, :, :])
-            feature[:, dim] = self.resnet_model(x)
-
-        x1 = self.resnet_fullconnect(feature.reshape(feature.shape[0], -1))
+        x1 = self.conv2ds(x1)
+        x1 = self.resnet_model(x1)
 
         # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
 
@@ -320,9 +331,9 @@ class IDENet(pl.LightningModule):
         #     output_hidden_states=None,
         #     return_dict=None)
 
-        x2 = x2.reshape(-1, 11)  # b, 256, 9
-        x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
-            # n * 128
+        # x2 = x2.reshape(-1, 11)  # b, 256, 9
+        # x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
+        #     # n * 128
         x2 = self.bert(inputs_embeds=x2)[1]
 
         # output = self.bert(input_ids=None,
@@ -341,7 +352,7 @@ class IDENet(pl.LightningModule):
         # for i, xx in enumerate(x2):
         #     x_lstm[i] = self.lstm_layer(xx.unsqueeze(0)).reshape(-1)
 
-        y_t = torch.empty(len(y), 2)
+        y_t = torch.empty(len(y), 2).cuda()
         for i, y_item in enumerate(y):
             if y_item == 0:
                 y_t[i] = torch.tensor([1, 0])
@@ -354,7 +365,7 @@ class IDENet(pl.LightningModule):
 
         # y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
-        loss = self.criterion(y_hat, y_t.cuda())
+        loss = self.criterion(y_hat, y_t)
 
         # logs metrics for each training_step,
         # and the average across the epoch, to the progress bar and logger

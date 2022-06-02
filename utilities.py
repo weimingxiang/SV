@@ -133,7 +133,6 @@ def to_input_image_single(img): # todo
     # img = img - rd_depth_mean + hight / 2
     # img = torch.maximum(img, torch.tensor(0))
     ims = torch.empty(len(img), hight, hight)
-    zoom = torch.empty(len(img))
 
     for i, img_dim in enumerate(img): #
         img_min = torch.min(img_dim)
@@ -142,12 +141,11 @@ def to_input_image_single(img): # todo
         im = torch.zeros(len(img_dim), img_hight)
 
         for x in range(len(img_dim)):
-            im[x, :img_dim[x] - img_min + 1] = 255
+            im[x, :img_dim[x] - img_min + 1] = 255 * img_hight / len(img_dim)
 
-        zoom[i] = img_hight / len(img_dim)
         ims[i] = resize(im.unsqueeze(0))
 
-    return ims, zoom
+    return ims
 
 class IdentifyDataset(torch.utils.data.Dataset):
     def __init__(self, path):
@@ -164,13 +162,17 @@ class IdentifyDataset(torch.utils.data.Dataset):
         self.nfile_list = os.listdir(path + "negative_img")
         self.path = path
         self._len = len(self.pfile_list) + len(self.pfile_list)
-        # self.pool = Pool(3)
-        # self.pdata = [[] for _ in range(len(self.pfile_list))]
-        # self.ndata = [[] for _ in range(len(self.nfile_list))]
-        # # print(self._len)
-        # for index in range(int(self._len / 2)):
-        #     self.pdata[index] = torch.load(self.path + "positive_data/" + self.pfile_list[index])
-        #     self.ndata[index] = torch.load(self.path + "negative_data/" + self.nfile_list[index])
+
+        pool = Pool(4)
+        print("loading data")
+        # all_p_img = torch.load(data_dir + '/all_p_img' + '.pt')
+        # all_n_img = torch.load(data_dir + '/all_n_img' + '.pt')
+        self.all_p_img, self.all_n_img, self.all_p_list, self.all_n_list = pool.imap(torch.load, [path + '/all_p_img' + '.pt', path + '/all_n_img' + '.pt', path + '/all_p_list' + '.pt', path + '/all_n_list' + '.pt'])
+        # all_positive_img_i_list = torch.load(data_dir + '/all_p_list' + '.pt')
+        # all_negative_img_i_list = torch.load(data_dir + '/all_n_list' + '.pt')
+        pool.close()
+        pool.join()
+        print("loaded")
 
 
     def __len__(self):
@@ -180,12 +182,16 @@ class IdentifyDataset(torch.utils.data.Dataset):
         if index % 2 ==0:
             # data = torch.load(self.path + "positive_data/" + self.pfile_list[int(index / 2)])
             # data = self.pool.map(torch.load, [self.path + "positive_img/" + self.pfile_list[int(index / 2)], self.path + "positive_zoom/" + self.pfile_list[int(index / 2)], self.path + "positive_list/" + self.pfile_list[int(index / 2)]])
-            return {"image" : torch.load(self.path + "positive_img/" + self.pfile_list[int(index / 2)]), "zoom" : torch.load(self.path + "positive_zoom/" + self.pfile_list[int(index / 2)]), "list" : torch.load(self.path + "positive_list/" + self.pfile_list[int(index / 2)])}, 1
+            # return {"image" : torch.load(self.path + "positive_img/" + self.pfile_list[int(index / 2)]), "list" : torch.load(self.path + "positive_list/" + self.pfile_list[int(index / 2)])}, 1
+            return {"image" : self.all_p_img[int(index / 2)], "list" : self.all_p_list[int(index / 2)]}, 1
+
             # return {"image":data[0], "zoom" : data[1], "list" : data[2]}, 1
         else:
             # data = torch.load(self.path + "negative_data/" + self.nfile_list[int(index / 2)])
             # data = self.pool.map(torch.load, [self.path + "negative_img/" + self.nfile_list[int(index / 2)], self.path + "negative_zoom/" + self.nfile_list[int(index / 2)], self.path + "negative_list/" + self.nfile_list[int(index / 2)]])
-            return {"image" : torch.load(self.path + "negative_img/" + self.nfile_list[int(index / 2)]), "zoom" : torch.load(self.path + "negative_zoom/" + self.nfile_list[int(index / 2)]), "list" : torch.load(self.path + "negative_list/" + self.nfile_list[int(index / 2)])}, 1
+            # return {"image" : torch.load(self.path + "negative_img/" + self.nfile_list[int(index / 2)]), "list" : torch.load(self.path + "negative_list/" + self.nfile_list[int(index / 2)])}, 0
+            return {"image" : self.all_n_img[int(index / 2)], "list" : self.all_n_list[int(index / 2)]}, 0
+
 
             # return {"image":data[0], "zoom" : data[1], "list" : data[2]}, 0
 
@@ -432,7 +438,27 @@ def cigar_img_single_optimal(sam_file, chromosome, begin, end):
     # print("======= to input image end =========")
     return cigars_img
 
+def kernel_cigar(read, ref_min, ref_max):
+    cigars_img = torch.zeros([4, ref_max - ref_min])
 
+    max_terminal = read.reference_start - ref_min
+
+    for operation, length in read.cigar: # (operation{10 class}, length)
+        if operation == 0:
+            cigars_img[0, max_terminal:max_terminal+length] = 255
+            max_terminal += length
+        elif operation == 2:
+            cigars_img[1, max_terminal:max_terminal+length] = 255
+            max_terminal += length
+        elif operation == 1:
+            cigars_img[2, max_terminal - int(length / 2):max_terminal + int(length / 2)] = 255
+        elif operation == 4:
+            cigars_img[3, max_terminal - int(length / 2):max_terminal + int(length / 2)] = 255
+
+        elif operation == 3 or operation == 7 or operation == 8:
+            max_terminal += length
+
+    return cigars_img
 
 def cigar_new_img_single_optimal(sam_file, chromosome, begin, end): # 去除I的影响以对齐ref alignment
     # print("======= cigar_img_single begin =========")
@@ -448,30 +474,21 @@ def cigar_new_img_single_optimal(sam_file, chromosome, begin, end): # 去除I的
     if r_start:
         ref_min = np.min(r_start)
         ref_max = np.max(r_end)
-        cigars_img = torch.zeros([4, len(r_start), ref_max - ref_min])
+        cigars_img = torch.empty([4, len(r_start), ref_max - ref_min])
+
+        pool = Pool()
 
         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
-            max_terminal = read.reference_start - ref_min
+            cigars_img[:, i, :] = pool.apply_async(kernel_cigar, (read, ref_min, ref_max)).get()
 
-            for operation, length in read.cigar: # (operation{10 class}, length)
-                if operation == 0:
-                    cigars_img[0, i, max_terminal:max_terminal+length] = 255
-                    max_terminal += length
-                elif operation == 2:
-                    cigars_img[1, i, max_terminal:max_terminal+length] = 255
-                    max_terminal += length
-                elif operation == 1:
-                    cigars_img[2, i, max_terminal - int(length / 2):max_terminal + int(length / 2)] = 255
-                elif operation == 4:
-                    cigars_img[3, i, max_terminal - int(length / 2):max_terminal + int(length / 2)] = 255
+        pool.close()
+        pool.join()
 
-                elif operation == 3 or operation == 7 or operation == 8:
-                    max_terminal += length
         cigars_img = resize(cigars_img)
     else:
         cigars_img = torch.zeros([4, hight, hight])
 
-    sam_file.close()
+    # sam_file.close()
     # print("======= to input image end =========")
     return cigars_img
 
@@ -581,7 +598,7 @@ def cigar_new_img_single_memory(sam_file, chromosome, begin, end): # 去除I的�
     else:
         cigars_img = torch.zeros([4, hight, hight])
 
-    sam_file.close()
+    # sam_file.close()
     # print("======= to input image end =========")
     return cigars_img
 
