@@ -65,7 +65,7 @@ for chromosome, chr_len in zip(chr_list, chr_length):
     # positive_cigar_img = torch.load(save_path + '/positive_cigar_new_img' + '.pt')
     # negative_cigar_img = torch.load(save_path + '/negative_cigar_new_img' + '.pt')
 
-    positive_img, negative_img, positive_img_mid, negative_img_mid, positive_img_zoom, negative_img_zoom, positive_img_mid_zoom, negative_img_mid_zoom, positive_img_i, negative_img_i, positive_cigar_img, negative_cigar_img = pool.map(torch.load, [data_dir + 'image/' + chromosome + '/positive_img' + '.pt', data_dir + 'image/' + chromosome + '/negative_img' + '.pt', data_dir + 'image/' + chromosome + '/positive_img_mids' + '.pt', data_dir + 'image/' + chromosome + '/negative_img_mids' + '.pt', data_dir + 'image/' + chromosome + '/positive_img_zoom' + '.pt', data_dir + 'image/' + chromosome + '/negative_img_zoom' + '.pt', data_dir + 'image/' + chromosome + '/positive_img_mids_zoom' + '.pt', data_dir + 'image/' + chromosome + '/negative_img_mids_zoom' + '.pt', data_dir + 'image/' + chromosome + '/positive_img_m(i)d' + '.pt', data_dir + 'image/' + chromosome + '/negative_img_m(i)d' + '.pt', save_path + '/positive_cigar_new_img' + '.pt', save_path + '/negative_cigar_new_img' + '.pt'])
+    positive_img, negative_img, positive_img_mid, negative_img_mid, positive_img_i, negative_img_i, positive_cigar_img, negative_cigar_img = pool.map(torch.load, [data_dir + 'image/' + chromosome + '/positive_img' + '.pt', data_dir + 'image/' + chromosome + '/negative_img' + '.pt', data_dir + 'image/' + chromosome + '/positive_img_mids' + '.pt', data_dir + 'image/' + chromosome + '/negative_img_mids' + '.pt', data_dir + 'image/' + chromosome + '/positive_img_m(i)d' + '.pt', data_dir + 'image/' + chromosome + '/negative_img_m(i)d' + '.pt', save_path + '/positive_cigar_new_img' + '.pt', save_path + '/negative_cigar_new_img' + '.pt'])
 
 
     # mid_sign_img = torch.load(data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign12.pt")
@@ -105,10 +105,8 @@ for chromosome, chr_len in zip(chr_list, chr_length):
     # print("cigar end")
 
     ut.mymkdir(data_dir + '/positive_img')
-    ut.mymkdir(data_dir + '/positive_zoom')
     ut.mymkdir(data_dir + '/positive_list')
     ut.mymkdir(data_dir + '/negative_img')
-    ut.mymkdir(data_dir + '/negative_zoom')
     ut.mymkdir(data_dir + '/negative_list')
 
     for i in range(len(p_position)):
@@ -127,10 +125,10 @@ for chromosome, chr_len in zip(chr_list, chr_length):
 
         # torch.save([torch.cat([negative_img[i], negative_img_mid[i], negative_cigar_img[i]], 0), torch.cat([negative_img_zoom[i], negative_img_mid_zoom[i]], 0), negative_img_i[i]], data_dir + '/negative_data/' + str(index) + '.pt')
 
-        a = [torch.cat([positive_img[i], positive_img_mid[i], positive_cigar_img[i]], 0), torch.cat([positive_img_zoom[i], positive_img_mid_zoom[i]], 0), positive_img_i[i], torch.cat([negative_img[i], negative_img_mid[i], negative_cigar_img[i]], 0), torch.cat([negative_img_zoom[i], negative_img_mid_zoom[i]], 0), negative_img_i[i]]
-        b = [data_dir + '/positive_img/' + str(index) + '.pt', data_dir + '/positive_zoom/' + str(index) + '.pt', data_dir + '/positive_list/' + str(index) + '.pt', data_dir + '/negative_img/' + str(index) + '.pt', data_dir + '/negative_zoom/' + str(index) + '.pt', data_dir + '/negative_list/' + str(index) + '.pt']
+        a = [torch.cat([positive_img[i], positive_img_mid[i], positive_cigar_img[i]], 0), positive_img_i[i], torch.cat([negative_img[i], negative_img_mid[i], negative_cigar_img[i]], 0), negative_img_i[i]]
+        b = [data_dir + '/positive_img/' + str(index) + '.pt', data_dir + '/positive_list/' + str(index) + '.pt', data_dir + '/negative_img/' + str(index) + '.pt', data_dir + '/negative_list/' + str(index) + '.pt']
 
-        for po in range(6):
+        for po in range(4):
             pool.apply_async(torch.save, (a[po], b[po]))
 
         index += 1

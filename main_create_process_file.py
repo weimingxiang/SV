@@ -35,17 +35,19 @@ hight = 224
 
 data_list = []
 for chromosome, chr_len in zip(chr_list, chr_length):
-    if not os.path.exists(data_dir + 'flag/' + chromosome + '.txt'):
-        data_list.append((chromosome, chr_len))
+    # if not os.path.exists(data_dir + 'flag/' + chromosome + '.txt'):
+    data_list.append((chromosome, chr_len))
 
 
 for chr, len in data_list:
     d = subprocess.getoutput("ps -aux | grep xwm | grep python | grep len | awk '{print $14}'").split()
     if chr in d:
         continue
+    if os.path.exists(data_dir + 'flag/' + chr + '.txt'):
+        continue
     print("python create_process_file.py --chr " + chr + " --len " + str(len))
-    # subprocess.call("python create_process_file.py --chr " + chr + " --len " + str(len), shell = True)
+    subprocess.call("python create_process_file.py --chr " + chr + " --len " + str(len), shell = True)
     # fd = open(chr + ".txt")
-    subprocess.Popen("python create_process_file.py --chr " + chr + " --len " + str(len), shell=True)
+    # subprocess.Popen("python create_process_file.py --chr " + chr + " --len " + str(len), shell = True)
     # subprocess.Popen("python par.py --chr " + chr + " --len " + str(len), shell=True)
 
