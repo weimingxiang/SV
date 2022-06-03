@@ -141,7 +141,7 @@ def to_input_image_single(img): # todo
         im = torch.zeros(len(img_dim), img_hight)
 
         for x in range(len(img_dim)):
-            im[x, :img_dim[x] - img_min + 1] = 255 * img_hight / len(img_dim)
+            im[x, :img_dim[x] - img_min + 1] = img_hight
 
         ims[i] = resize(im.unsqueeze(0))
 
@@ -460,11 +460,11 @@ def kernel_cigar(read, ref_min, ref_max):
 
     return cigars_img
 
-def cigar_new_img_single_optimal(sam_file, chromosome, begin, end): # 去除I的影响以对齐ref alignment
+def cigar_new_img_single_optimal(bam_path, chromosome, begin, end): # 去除I的影响以对齐ref alignment
     # print("======= cigar_img_single begin =========")
     r_start = []
     r_end = []
-    # sam_file = pysam.AlignmentFile(bam_path, "rb")
+    sam_file = pysam.AlignmentFile(bam_path, "rb")
 
     for read in sam_file.fetch(chromosome, begin, end):
         r_start.append(read.reference_start)
@@ -476,28 +476,29 @@ def cigar_new_img_single_optimal(sam_file, chromosome, begin, end): # 去除I的
         ref_max = np.max(r_end)
         cigars_img = torch.empty([4, len(r_start), ref_max - ref_min])
 
-        pool = Pool()
+        # pool = Pool()
 
         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
-            cigars_img[:, i, :] = pool.apply_async(kernel_cigar, (read, ref_min, ref_max)).get()
+            # cigars_img[:, i, :] = pool.apply_async(kernel_cigar, (read, ref_min, ref_max)).get()
+            cigars_img[:, i, :] = kernel_cigar(read, ref_min, ref_max)
 
-        pool.close()
-        pool.join()
+        # pool.close()
+        # pool.join()
 
         cigars_img = resize(cigars_img)
     else:
         cigars_img = torch.zeros([4, hight, hight])
 
-    # sam_file.close()
+    sam_file.close()
     # print("======= to input image end =========")
     return cigars_img
 
 
-def cigar_new_img_single_memory(sam_file, chromosome, begin, end): # 去除I的影响以对齐ref alignment
+def cigar_new_img_single_memory(bam_path, chromosome, begin, end): # 去除I的影响以对齐ref alignment
     # print("======= cigar_img_single begin =========")
     r_start = []
     r_end = []
-    # sam_file = pysam.AlignmentFile(bam_path, "rb")
+    sam_file = pysam.AlignmentFile(bam_path, "rb")
 
     for read in sam_file.fetch(chromosome, begin, end):
         r_start.append(read.reference_start)
@@ -598,7 +599,7 @@ def cigar_new_img_single_memory(sam_file, chromosome, begin, end): # 去除I的�
     else:
         cigars_img = torch.zeros([4, hight, hight])
 
-    # sam_file.close()
+    sam_file.close()
     # print("======= to input image end =========")
     return cigars_img
 

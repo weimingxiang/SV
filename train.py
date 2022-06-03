@@ -359,14 +359,14 @@ else:
             # torch.save(negative_cigar_img, save_path + '/negative_cigar_img' + '.pt')
             # end 从头跑程序需注释
         else:
-            sam_file = pysam.AlignmentFile(bam_path, "rb")
+            # sam_file = pysam.AlignmentFile(bam_path, "rb")
             ins_cigar_img = torch.empty(len(ins_position), 4, hight, hight)
             del_cigar_img = torch.empty(len(del_position), 4, hight, hight)
             negative_cigar_img = torch.empty(len(n_position), 4, hight, hight)
             for i, b_e in enumerate(ins_position):
                 #f positive_cigar_img = torch.cat((positive_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
                 try:
-                    ins_cigar_img[i] = ut.cigar_new_img_single_optimal(sam_file, chromosome, b_e[0], b_e[1])
+                    ins_cigar_img[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1])
                 except Exception as e:
                     print(e)
                     print("Exception cigar_img_single_optimal")
@@ -374,7 +374,7 @@ else:
                     while fail:
                         try:
                             fail = 0
-                            ins_cigar_img[i] = ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+                            ins_cigar_img[i] = ut.cigar_new_img_single_memory(bam_path, chromosome, b_e[0], b_e[1])
                         except Exception as e:
                             fail = 1
                             print(e)
@@ -399,7 +399,7 @@ else:
             for i, b_e in enumerate(del_position):
                 #f positive_cigar_img = torch.cat((positive_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
                 try:
-                    del_position[i] = ut.cigar_new_img_single_optimal(sam_file, chromosome, b_e[0], b_e[1])
+                    del_position[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1])
                 except Exception as e:
                     print(e)
                     print("Exception cigar_img_single_optimal")
@@ -407,7 +407,7 @@ else:
                     while fail:
                         try:
                             fail = 0
-                            del_position[i] = ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+                            del_position[i] = ut.cigar_new_img_single_memory(bam_path, chromosome, b_e[0], b_e[1])
                         except Exception as e:
                             fail = 1
                             print(e)
@@ -434,7 +434,7 @@ else:
                 #f negative_cigar_img = torch.cat((negative_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
 
                 try:
-                    negative_cigar_img[i] = ut.cigar_new_img_single_optimal(sam_file, chromosome, b_e[0], b_e[1])
+                    negative_cigar_img[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1])
                 except Exception as e:
                     print(e)
                     print("Exception cigar_img_single_optimal")
@@ -442,7 +442,7 @@ else:
                     while fail:
                         try:
                             fail = 0
-                            negative_cigar_img[i] = ut.cigar_new_img_single_memory(sam_file, chromosome, b_e[0], b_e[1])
+                            negative_cigar_img[i] = ut.cigar_new_img_single_memory(bam_path, chromosome, b_e[0], b_e[1])
                         except Exception as e:
                             fail = 1
                             print(e)
@@ -463,7 +463,7 @@ else:
 
 
                 print("===== finish(n_position) " + chromosome + " " + str(i))
-            sam_file.close()
+            # sam_file.close()
 
             save_path = data_dir + 'image/' + chromosome
 
