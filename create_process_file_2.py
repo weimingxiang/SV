@@ -30,8 +30,7 @@ data_dir = "../datasets/NA12878_PacBio_MtSinai/"
 
 bam_path = data_dir + "sorted_final_merged.bam"
 
-ins_vcf_filename = data_dir + "insert_result_data.csv.vcf"
-del_vcf_filename = data_dir + "delete_result_data.csv.vcf"
+vcf_filename = data_dir + "insert_result_data.csv.vcf"
 
 position_enforcement_refresh = 0
 img_enforcement_refresh = 0
@@ -187,42 +186,121 @@ def p(sum_data):
     chromosome, chr_len = sum_data
 
     # copy begin
-
-
-
-
     print("deal " + chromosome)
 
-    ins_position = torch.load(data_dir + 'position/' + chromosome + '/insert' + '.pt')
-    del_position = torch.load(data_dir + 'position/' + chromosome + '/delete' + '.pt')
+
+    # ut.mymkdir(data_dir + "chromosome_sign/")
+    # chromosome_sign, mid_sign, mid_sign_list = ut.preprocess(bam_path, chromosome, chr_len, data_dir)
+    # torch.save(chromosome_sign, data_dir + "chromosome_sign/" + chromosome + ".pt")
+    # torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
+    # mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+    # del chromosome_sign
+    # del mid_sign
+    # mid_sign_img = ut.mid_list2img(mid_sign_list, chromosome)
+    # del mid_sign_list
+    # ut.mymkdir(data_dir + "chromosome_img/")
+    # torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
+
+
+    # # 1
+    # mid_sign = process(bam_path, chromosome, chr_len, data_dir)
+    # torch.save(mid_sign, data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
+
+    # # 2
+    # p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
+    # n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
+
+    # mid_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
+
+    # positive_img_mid = torch.empty(len(p_position), 4, hight, hight)
+    # negative_img_mid = torch.empty(len(n_position), 4, hight, hight)
+
+    # for i, b_e in enumerate(p_position):
+    #     positive_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
+    #     print("===== finish(positive_img) " + chromosome + " " + str(i))
+
+
+    # for i, b_e in enumerate(n_position):
+    #     negative_img_mid[i] = ut.to_img_mid_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
+
+    #     print("===== finish(negative_img) " + chromosome + " " + str(i))
+
+    # save_path = data_dir + 'image/' + chromosome
+
+    # torch.save(positive_img_mid, save_path + '/positive_img_mids' + '.pt')
+    # torch.save(negative_img_mid, save_path + '/negative_img_mids' + '.pt')
+
+    # # 3
+    # mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+
+    # # # mid_sign_img = mid_list2img(mid_sign_list, chromosome)
+    # mid_sign_img = torch.tensor(list2img.deal_list(mid_sign_list))
+
+    # del mid_sign_list
+
+    # ut.mymkdir(data_dir + "chromosome_img/")
+    # torch.save(mid_sign_img, data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
+
+
+    # mid_sign_list = torch.load(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.pt")
+    # ut.data_write_csv(data_dir + "chromosome_sign/" + chromosome + "_m(i)d_sign.csv", mid_sign_list)
+
+    # p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
+    # n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
+    # # img/positive_cigar_img
+    # print("cigar start")
+    # positive_cigar_img = torch.empty(len(p_position), 4, hight, hight)
+    # negative_cigar_img = torch.empty(len(n_position), 4, hight, hight)
+
+    # for i in range(len(p_position)):
+    # # for i, b_e in enumerate(p_position):
+    #     positive_cigar_img[i] = my(p_position[i], chromosome, "p " + str(i))
+    # for i in range(len(n_position)):
+    # # for i, b_e in enumerate(n_position):
+    #     negative_cigar_img[i] = my(n_position[i], chromosome, "n " + str(i))
+
+    # # pool = Pool(maxtasksperchild = 10)
+    # # a = pool.imap(partial(my, chromosome = chromosome, flag = "p"), p_position)
+    # # print("============")
+    # # b = pool.imap(partial(my, chromosome = chromosome, flag = "n"), n_position)
+    # # print("pool close begin")
+    # # # b = pool.starmap(my, zip(n_position, repeat(chromosome), repeat("n")))
+    # # pool.close()
+    # # print("pool close end")
+    # # pool.join()
+    # # print("pool join end")
+
+    # # for i, item in enumerate(a):
+    # #     positive_cigar_img[i] = item
+    # #     print("===== finish(position) " + chromosome + " p " + str(i))
+
+    # # for i, item in enumerate(b):
+    # #     negative_cigar_img[i] = item
+    # #     print("===== finish(position) " + chromosome + " n " + str(i))
+
+    # # del a
+    # # del b
+
+    # save_path = data_dir + 'image/' + chromosome
+
+    # torch.save(positive_cigar_img, save_path + '/positive_cigar_new_img' + '.pt')
+    # torch.save(negative_cigar_img, save_path + '/negative_cigar_new_img' + '.pt')
+
+    p_position = torch.load(data_dir + 'position/' + chromosome + '/positive' + '.pt')
     n_position = torch.load(data_dir + 'position/' + chromosome + '/negative' + '.pt')
 
     chromosome_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + ".pt")
     mid_sign = torch.load(data_dir + "chromosome_sign/" + chromosome + "_mids_sign.pt")
-    mid_sign_img = torch.load(data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
+    # mid_sign_img = torch.load(data_dir + "chromosome_img/" + chromosome + "_m(i)d_sign.pt")
 
-    #f # cigar
-    # if os.path.exists(data_dir + "chromosome_cigar/" + chromosome + ".pt") and not cigar_enforcement_refresh:
-    #     chromosome_cigar, chromosome_cigar_len, refer_q_table = torch.load(data_dir + "chromosome_cigar/" + chromosome + ".pt")
-    # else:
-    #     ut.mymkdir(data_dir + "chromosome_cigar/")
-    #     chromosome_cigar, chromosome_cigar_len, refer_q_table = ut.preprocess_cigar(bam_path, chromosome)
-    #     torch.save([chromosome_cigar, chromosome_cigar_len, refer_q_table], data_dir + "chromosome_cigar/" + chromosome + ".pt")
-    #     # torch.save(chromosome_cigar, data_dir + "chromosome_cigar/" + chromosome + ".pt")
 
-    # rd_depth_mean = torch.mean(chromosome_sign[2].float())
-
-    ins_img = torch.empty(len(ins_position), 3, hight, hight)
-    del_img = torch.empty(len(del_position), 3, hight, hight)
+    positive_img = torch.empty(len(p_position), 3, hight, hight)
     negative_img = torch.empty(len(n_position), 3, hight, hight)
 
-    ins_img_mid = torch.empty(len(ins_position), 4, hight, hight)
-    del_img_mid = torch.empty(len(del_position), 4, hight, hight)
+    positive_img_mid = torch.empty(len(p_position), 4, hight, hight)
     negative_img_mid = torch.empty(len(n_position), 4, hight, hight)
-
-    ins_img_i = torch.empty(len(ins_position), 512, 11)
-    del_img_i = torch.empty(len(del_position), 512, 11)
-    negative_img_i = torch.empty(len(n_position), 512, 11)
+    # positive_img_i = torch.empty(len(p_position), 512, 11)
+    # negative_img_i = torch.empty(len(n_position), 512, 11)
 
 
     # insert_chromosome = insert_result_data[insert_result_data["CHROM"] == chromosome]
@@ -255,72 +333,46 @@ def p(sum_data):
     #     #f negative_cigar_img = torch.cat((negative_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
     #     negative_cigar_img = torch.cat((negative_cigar_img, ut.cigar_img_single(bam_path, chromosome, begin, end).unsqueeze(0)), 0)
 
-    resize = torchvision.transforms.Resize([512, 11])
+    # resize = torchvision.transforms.Resize([512, 11])
 
-    pool = Pool()
-
-    for i, b_e in enumerate(ins_position):
-        # ins_img[i] = ut.to_input_image_single(chromosome_sign[:, b_e[0]:b_e[1]]) # dim 3
-        ins_img[i] = pool.apply_async(ut.to_input_image_single, (chromosome_sign[:, b_e[0]:b_e[1]], )).get()
-        # ins_img_mid[i] = ut.to_input_image_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 4
-        ins_img_mid[i] = pool.apply_async(ut.to_input_image_single, (mid_sign[:, b_e[0]:b_e[1]], )).get()
-        # ins_img_i[i] = resize(mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0))
-        ins_img_i[i] = pool.apply_async(resize, (mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0), )).get()
-
-        print("===== finish(ins_img) " + chromosome + " " + str(i))
-
-    for i, b_e in enumerate(del_position):
-        # del_img[i] = ut.to_input_image_single(chromosome_sign[:, b_e[0]:b_e[1]]) # dim 3
-        del_img[i] = pool.apply_async(ut.to_input_image_single, (chromosome_sign[:, b_e[0]:b_e[1]], )).get()
-        # del_img_mid[i] = ut.to_input_image_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 4
-        del_img_mid[i] = pool.apply_async(ut.to_input_image_single, (mid_sign[:, b_e[0]:b_e[1]], )).get()
-        # del_img_i[i] = resize(mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0))
-        del_img_i[i] = pool.apply_async(resize, (mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0), )).get()
-
-        print("===== finish(del_img) " + chromosome + " " + str(i))
+    for i, b_e in enumerate(p_position):
+        positive_img[i] = ut.to_input_image_single(chromosome_sign[:, b_e[0]:b_e[1]]) # dim 3
+        positive_img_mid[i] = ut.to_input_image_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
+        # positive_img_i[i] = resize(mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0))
+        print("===== finish(positive_img) " + chromosome + " " + str(i))
 
 
     for i, b_e in enumerate(n_position):
-        # negative_img[i] = ut.to_input_image_single(chromosome_sign[:, b_e[0]:b_e[1]])
-        negative_img[i] = pool.apply_async(ut.to_input_image_single, (chromosome_sign[:, b_e[0]:b_e[1]], )).get()
-        # negative_img_mid[i] = ut.to_input_image_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 4
-        negative_img_mid[i] = pool.apply_async(ut.to_input_image_single, (mid_sign[:, b_e[0]:b_e[1]], )).get()
+        negative_img[i] = ut.to_input_image_single(chromosome_sign[:, b_e[0]:b_e[1]])
+        negative_img_mid[i] = ut.to_input_image_single(mid_sign[:, b_e[0]:b_e[1]]) # dim 3
         # negative_img_i[i] = resize(mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0))
-        negative_img_i[i] = pool.apply_async(resize, (mid_sign_img[b_e[0]:b_e[1]].unsqueeze(0), )).get()
-
 
         print("===== finish(negative_img) " + chromosome + " " + str(i))
 
-    pool.close()
-    pool.join()
+
+    # _positive_img, _negative_img = pool.starmap(ut.to_input_image, zip([positive_img, negative_img], [rd_depth_mean] * 2))
+    # t_positive_img = ut.to_input_image(positive_img, rd_depth_mean)
+    # t_negative_img = ut.to_input_image(negative_img, rd_depth_mean)
     print("save image start")
 
     save_path = data_dir + 'image/' + chromosome
 
     ut.mymkdir(save_path)
     # pool.starmap(torch.save, zip([_positive_img, _negative_img, positive_cigar_img, negative_cigar_img], [save_path + '/positive_img' + '.pt', save_path + '/negative_img' + '.pt', save_path + '/positive_cigar_img' + '.pt', save_path + '/negative_cigar_img' + '.pt']))
-
-    torch.save(ins_img, save_path + '/ins_img' + '.pt')
-    torch.save(del_img, save_path + '/del_img' + '.pt')
-
+    torch.save(positive_img, save_path + '/positive_img' + '.pt')
     torch.save(negative_img, save_path + '/negative_img' + '.pt')
 
+    torch.save(positive_img_mid, save_path + '/positive_img_mids' + '.pt')
+    torch.save(negative_img_mid, save_path + '/negative_img_mids' + '.pt')
 
-    torch.save(ins_img_mid, save_path + '/ins_img_mid' + '.pt')
-    torch.save(del_img_mid, save_path + '/del_img_mid' + '.pt')
-
-    torch.save(negative_img_mid, save_path + '/negative_img_mid' + '.pt')
+    # torch.save(positive_img_i, save_path + '/positive_img_m(i)d' + '.pt')
+    # torch.save(negative_img_i, save_path + '/negative_img_m(i)d' + '.pt')
 
 
-    torch.save(ins_img_i, save_path + '/ins_img_i' + '.pt')
-    torch.save(del_img_i, save_path + '/del_img_i' + '.pt')
-
-    torch.save(negative_img_i, save_path + '/negative_img_i' + '.pt')
-
-    print("img end")
+    print("cigar end")
 
     # copy end
-    torch.save(1, data_dir + 'flag/' + chromosome + '.txt')
+    torch.save(1, data_dir + 'flag/' + chromosome + '.txt2')
 
 
 
