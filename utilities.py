@@ -438,29 +438,29 @@ def cigar_img_single_optimal(sam_file, chromosome, begin, end):
     # print("======= to input image end =========")
     return cigars_img
 
-def kernel_cigar(read, ref_min, ref_max):
-    cigars_img = torch.zeros([4, ref_max - ref_min])
+def kernel_cigar(read, ref_min, ref_max, ciagr_resize, zoom):
+    cigars_img = torch.zeros([4, int((ref_max - ref_min) / zoom)])
 
     max_terminal = read.reference_start - ref_min
 
     for operation, length in read.cigar: # (operation{10 class}, length)
         if operation == 0:
-            cigars_img[0, max_terminal:max_terminal+length] = 255
+            cigars_img[0, int(max_terminal / zoom):int((max_terminal+length) / zoom)] = 255
             max_terminal += length
         elif operation == 2:
-            cigars_img[1, max_terminal:max_terminal+length] = 255
+            cigars_img[1, int(max_terminal / zoom):int((max_terminal+length) / zoom)] = 255
             max_terminal += length
         elif operation == 1:
-            cigars_img[2, max_terminal - int(length / 2):max_terminal + int(length / 2)] = 255
+            cigars_img[2, int((max_terminal - length / 2) / zoom):int((max_terminal + length / 2) / zoom)] = 255
         elif operation == 4:
-            cigars_img[3, max_terminal - int(length / 2):max_terminal + int(length / 2)] = 255
+            cigars_img[3, int((max_terminal - length / 2) / zoom):int((max_terminal + length / 2) / zoom)] = 255
 
         elif operation == 3 or operation == 7 or operation == 8:
             max_terminal += length
 
-    return cigars_img
+    return ciagr_resize(cigars_img.unsqueeze(1))
 
-def cigar_new_img_single_optimal(bam_path, chromosome, begin, end): # 去除I的影响以对齐ref alignment
+def cigar_new_img_single_optimal(bam_path, chromosome, begin, end, zoom): # 去除I的影响以对齐ref alignment
     # print("======= cigar_img_single begin =========")
     r_start = []
     r_end = []
@@ -474,13 +474,15 @@ def cigar_new_img_single_optimal(bam_path, chromosome, begin, end): # 去除I的
     if r_start:
         ref_min = np.min(r_start)
         ref_max = np.max(r_end)
-        cigars_img = torch.empty([4, len(r_start), ref_max - ref_min])
+        cigars_img = torch.empty([4, len(r_start), hight])
+        ciagr_resize = torchvision.transforms.Resize([1, hight])
+
 
         # pool = Pool()
 
         for i, read in enumerate(sam_file.fetch(chromosome, begin, end)):
             # cigars_img[:, i, :] = pool.apply_async(kernel_cigar, (read, ref_min, ref_max)).get()
-            cigars_img[:, i, :] = kernel_cigar(read, ref_min, ref_max)
+            cigars_img[:, i:i + 1, :] = kernel_cigar(read, ref_min, ref_max, ciagr_resize, zoom)
 
         # pool.close()
         # pool.join()

@@ -68,17 +68,21 @@ if os.path.exists(data_dir + '/all_p_img' + '.pt') and not all_enforcement_refre
     # pool.close()
     print("loaded")
 else:
-    all_positive_img = torch.empty(0, 3, hight, hight)
+    all_ins_img = torch.empty(0, 3, hight, hight)
+    all_del_img = torch.empty(0, 3, hight, hight)
     all_negative_img = torch.empty(0, 3, hight, hight)
 
-    all_positive_img_mid = torch.empty(0, 3, hight, hight)
-    all_negative_img_mid = torch.empty(0, 3, hight, hight)
+    all_ins_img_mid = torch.empty(0, 4, hight, hight)
+    all_del_img_mid = torch.empty(0, 4, hight, hight)
+    all_negative_img_mid = torch.empty(0, 4, hight, hight)
 
-    all_positive_cigar_img = torch.empty(0, 7, hight, hight)
-    all_negative_cigar_img = torch.empty(0, 7, hight, hight)
+    all_ins_cigar_img = torch.empty(0, 4, hight, hight)
+    all_del_cigar_img = torch.empty(0, 4, hight, hight)
+    all_negative_cigar_img = torch.empty(0, 4, hight, hight)
 
-    all_p_list = torch.empty(0, 512, 9)
-    all_n_list = torch.empty(0, 512, 9)
+    all_ins_list = torch.empty(0, 512, 11)
+    all_del_list = torch.empty(0, 512, 11)
+    all_negative_list = torch.empty(0, 512, 11)
 
     # pool = Pool(2)
     for chromosome, chr_len in zip(chr_list, chr_length):
@@ -365,21 +369,17 @@ else:
             negative_cigar_img = torch.empty(len(n_position), 4, hight, hight)
             for i, b_e in enumerate(ins_position):
                 #f positive_cigar_img = torch.cat((positive_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
-                try:
-                    ins_cigar_img[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1])
-                except Exception as e:
-                    print(e)
-                    print("Exception cigar_img_single_optimal")
-                    fail = 1
-                    while fail:
-                        try:
-                            fail = 0
-                            ins_cigar_img[i] = ut.cigar_new_img_single_memory(bam_path, chromosome, b_e[0], b_e[1])
-                        except Exception as e:
-                            fail = 1
-                            print(e)
-                            print("Exception cigar_new_img_single_memory")
-                            time.sleep(5)
+                zoom = 1
+                fail = 1
+                while fail:
+                    try:
+                        fail = 0
+                        ins_cigar_img[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1], zoom)
+                    except Exception as e:
+                        fail = 1
+                        zoom += 1
+                        print(e)
+                        print("Exception cigar_img_single_optimal" + str(zoom))
                 #     try:
                 #         positive_cigar_img[i] = ut.cigar_img_single_optimal_time2sapce(sam_file, chromosome, b_e[0], b_e[1])
                 #     except Exception as e:
@@ -398,21 +398,17 @@ else:
 
             for i, b_e in enumerate(del_position):
                 #f positive_cigar_img = torch.cat((positive_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
-                try:
-                    del_position[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1])
-                except Exception as e:
-                    print(e)
-                    print("Exception cigar_img_single_optimal")
-                    fail = 1
-                    while fail:
-                        try:
-                            fail = 0
-                            del_position[i] = ut.cigar_new_img_single_memory(bam_path, chromosome, b_e[0], b_e[1])
-                        except Exception as e:
-                            fail = 1
-                            print(e)
-                            print("Exception cigar_new_img_single_memory")
-                            time.sleep(5)
+                zoom = 1
+                fail = 1
+                while fail:
+                    try:
+                        fail = 0
+                        del_cigar_img[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1], zoom)
+                    except Exception as e:
+                        fail = 1
+                        zoom += 1
+                        print(e)
+                        print("Exception cigar_img_single_optimal" + str(zoom))
                 #     try:
                 #         positive_cigar_img[i] = ut.cigar_img_single_optimal_time2sapce(sam_file, chromosome, b_e[0], b_e[1])
                 #     except Exception as e:
@@ -432,22 +428,17 @@ else:
 
             for i, b_e in enumerate(n_position):
                 #f negative_cigar_img = torch.cat((negative_cigar_img, ut.cigar_img(chromosome_cigar, chromosome_cigar_len, refer_q_table[begin], refer_q_table[end]).unsqueeze(0)), 0)
-
-                try:
-                    negative_cigar_img[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1])
-                except Exception as e:
-                    print(e)
-                    print("Exception cigar_img_single_optimal")
-                    fail = 1
-                    while fail:
-                        try:
-                            fail = 0
-                            negative_cigar_img[i] = ut.cigar_new_img_single_memory(bam_path, chromosome, b_e[0], b_e[1])
-                        except Exception as e:
-                            fail = 1
-                            print(e)
-                            print("Exception cigar_new_img_single_memory")
-                            time.sleep(5)
+                zoom = 1
+                fail = 1
+                while fail:
+                    try:
+                        fail = 0
+                        negative_cigar_img[i] = ut.cigar_new_img_single_optimal(bam_path, chromosome, b_e[0], b_e[1], zoom)
+                    except Exception as e:
+                        fail = 1
+                        zoom += 1
+                        print(e)
+                        print("Exception cigar_img_single_optimal" + str(zoom))
 
                     # try:
                     #     negative_cigar_img[i] = ut.cigar_img_single_optimal_time2sapce(sam_file, chromosome, b_e[0], b_e[1])
@@ -472,25 +463,35 @@ else:
             torch.save(negative_cigar_img, save_path + '/negative_cigar_new_img' + '.pt')
         print("cigar end")
 
-        all_positive_img = torch.cat((all_positive_img, t_positive_img), 0)
-        all_negative_img = torch.cat((all_negative_img, t_negative_img), 0)
-        all_positive_cigar_img = torch.cat((all_positive_cigar_img, positive_cigar_img), 0)
+        all_ins_img = torch.cat((all_ins_img, ins_img), 0)
+        all_del_img = torch.cat((all_del_img, del_img), 0)
+        all_negative_img = torch.cat((all_negative_img, negative_img), 0)
+
+        all_ins_cigar_img = torch.cat((all_ins_cigar_img, ins_cigar_img), 0)
+        all_del_cigar_img = torch.cat((all_del_cigar_img, del_cigar_img), 0)
         all_negative_cigar_img = torch.cat((all_negative_cigar_img, negative_cigar_img), 0)
-        all_positive_img_mid = torch.cat((all_positive_img_mid, positive_img_mid), 0)
+
+        all_ins_img_mid = torch.cat((all_ins_img_mid, ins_img_mid), 0)
+        all_del_img_mid = torch.cat((all_del_img_mid, del_img_mid), 0)
         all_negative_img_mid = torch.cat((all_negative_img_mid, negative_img_mid), 0)
 
-        all_p_list = torch.cat((all_p_list, positive_img_i), 0)
-        # set_trace()
-        all_n_list = torch.cat((all_n_list, positive_img_i), 0)
+        all_ins_list = torch.cat((all_ins_list, ins_img_i), 0)
+        all_del_list = torch.cat((all_del_list, del_img_i), 0)
+
+        all_negative_list = torch.cat((all_negative_list, negative_img_i), 0)
 
 
-    all_p_img = torch.cat([all_positive_img, all_positive_img_mid, all_positive_cigar_img], 1) # 3, 3, 3
+    all_ins_img = torch.cat([all_ins_img, all_ins_img_mid, all_ins_cigar_img], 1) # 3, 3, 3
+    all_del_img = torch.cat([all_del_img, all_del_img_mid, all_del_cigar_img], 1) # 3, 3, 3
     all_n_img = torch.cat([all_negative_img, all_negative_img_mid, all_negative_cigar_img], 1)
 
-    torch.save(all_p_img, data_dir + '/all_p_img' + '.pt')
+    torch.save(all_ins_img, data_dir + '/all_ins_img' + '.pt')
+    torch.save(all_del_img, data_dir + '/all_del_img' + '.pt')
     torch.save(all_n_img, data_dir + '/all_n_img' + '.pt')
-    torch.save(all_p_list, data_dir + '/all_p_list' + '.pt')
-    torch.save(all_n_list, data_dir + '/all_n_list' + '.pt')
+
+    torch.save(all_ins_list, data_dir + '/all_ins_list' + '.pt')
+    torch.save(all_del_list, data_dir + '/all_del_list' + '.pt')
+    torch.save(all_negative_list, data_dir + '/all_negative_list' + '.pt')
 
 
 my_label = "11+11channel_predict"
