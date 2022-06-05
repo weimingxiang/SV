@@ -55,7 +55,7 @@ sam_file.close()
 
 hight = 224
 
-if os.path.exists(data_dir + '/all_p_img' + '.pt') and not all_enforcement_refresh:
+if os.path.exists(data_dir + '/all_n_img' + '.pt') and not all_enforcement_refresh:
     # pool = Pool(2)
     # print("loading")
     # all_p_img = torch.load(data_dir + '/all_p_img' + '.pt')

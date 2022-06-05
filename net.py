@@ -147,7 +147,7 @@ class IDENet(pl.LightningModule):
         #     nn.Conv2d(in_channels=4, out_channels=3, kernel_size=3, stride=1, padding=1),
         # )
         # conv2d_dim = list(range(11, 3, -self.conv2d_dim_stride))
-        conv2d_dim = list(range(11, 3, -1))
+        conv2d_dim = list(range(7, 3, -1))
         conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
 
@@ -165,12 +165,12 @@ class IDENet(pl.LightningModule):
 
 
         # full_dim = [1000, 500, 250, 125, 62, 31, 15, 7]
-        full_dim = range(1000 + 768, 2, -self.classfication_dim_stride) # 1000 + 768 -> 2
+        full_dim = range(1000 + 768, 3, -self.classfication_dim_stride) # 1000 + 768 -> 2
         # full_dim = [1000 + 768, 1000, 500, 50, 10]
         self.classfication = attention_classfication(full_dim)
 
         self.softmax = nn.Sequential(
-            nn.Linear(full_dim[-1], 2),
+            nn.Linear(full_dim[-1], 3),
             nn.Softmax(1)
         )
 
@@ -262,13 +262,14 @@ class IDENet(pl.LightningModule):
         # for i, xx in enumerate(x2):
         #     x_lstm[i] = self.lstm_layer(xx.unsqueeze(0)).reshape(-1)
 
-        y_t = torch.empty(len(y), 2).cuda()
+        y_t = torch.empty(len(y), 3).cuda()
         for i, y_item in enumerate(y):
             if y_item == 0:
-                y_t[i] = torch.tensor([1, 0])
+                y_t[i] = torch.tensor([1, 0, 0])
+            elif y_item == 1:
+                y_t[i] = torch.tensor([0, 1, 0])
             else:
-                y_t[i] = torch.tensor([0, 1])
-
+                y_t[i] = torch.tensor([0, 0, 1])
 
         y_hat = self.classfication(torch.cat([x1, x2], 1))
         # y_hat = self.classfication(x1)
@@ -331,7 +332,7 @@ class IDENet(pl.LightningModule):
         #     output_hidden_states=None,
         #     return_dict=None)
 
-        # x2 = x2.reshape(-1, 11)  # b, 256, 9
+        # x2 = x2.reshape(-1, 11)  # b, 256, 11
         # x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
         #     # n * 128
         x2 = self.bert(inputs_embeds=x2)[1]
@@ -352,13 +353,14 @@ class IDENet(pl.LightningModule):
         # for i, xx in enumerate(x2):
         #     x_lstm[i] = self.lstm_layer(xx.unsqueeze(0)).reshape(-1)
 
-        y_t = torch.empty(len(y), 2).cuda()
+        y_t = torch.empty(len(y), 3).cuda()
         for i, y_item in enumerate(y):
             if y_item == 0:
-                y_t[i] = torch.tensor([1, 0])
+                y_t[i] = torch.tensor([1, 0, 0])
+            elif y_item == 1:
+                y_t[i] = torch.tensor([0, 1, 0])
             else:
-                y_t[i] = torch.tensor([0, 1])
-
+                y_t[i] = torch.tensor([0, 0, 1])
 
         y_hat = self.classfication(torch.cat([x1, x2], 1))
         # y_hat = self.classfication(x1)

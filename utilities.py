@@ -158,39 +158,51 @@ class IdentifyDataset(torch.utils.data.Dataset):
         # self._positive_img = to_input_image(positive_img, rd_depth_mean)
         # self._negative_img = to_input_image(negative_img, rd_depth_mean)
 
-        self.pfile_list = os.listdir(path + "positive_img")
-        self.nfile_list = os.listdir(path + "negative_img")
-        self.path = path
-        self._len = len(self.pfile_list) + len(self.pfile_list)
+        # self.pfile_list = os.listdir(path + "positive_img")
+        # self.nfile_list = os.listdir(path + "negative_img")
+        # self.path = path
+        # self._len = len(self.pfile_list) + len(self.pfile_list)
 
-        pool = Pool(4)
+        pool = Pool(6)
         print("loading data")
         # all_p_img = torch.load(data_dir + '/all_p_img' + '.pt')
         # all_n_img = torch.load(data_dir + '/all_n_img' + '.pt')
-        self.all_p_img, self.all_n_img, self.all_p_list, self.all_n_list = pool.imap(torch.load, [path + '/all_p_img' + '.pt', path + '/all_n_img' + '.pt', path + '/all_p_list' + '.pt', path + '/all_n_list' + '.pt'])
+        self.all_ins_img, self.all_del_img, self.all_n_img, self.all_ins_list, self.all_del_list, self.all_n_list = pool.imap(torch.load, [path + '/all_ins_img' + '.pt', path + '/all_del_img' + '.pt', path + '/all_n_img' + '.pt', path + '/all_ins_list' + '.pt', path + '/all_del_list' + '.pt', path + '/all_n_list' + '.pt'])
         # all_positive_img_i_list = torch.load(data_dir + '/all_p_list' + '.pt')
         # all_negative_img_i_list = torch.load(data_dir + '/all_n_list' + '.pt')
         pool.close()
         pool.join()
         print("loaded")
+        self._len = len(self.all_ins_list) + len(self.all_del_list) + len(self.all_n_list)
+
 
 
     def __len__(self):
         return self._len
 
     def __getitem__(self, index):
-        if index % 2 ==0:
-            # data = torch.load(self.path + "positive_data/" + self.pfile_list[int(index / 2)])
-            # data = self.pool.map(torch.load, [self.path + "positive_img/" + self.pfile_list[int(index / 2)], self.path + "positive_zoom/" + self.pfile_list[int(index / 2)], self.path + "positive_list/" + self.pfile_list[int(index / 2)]])
-            # return {"image" : torch.load(self.path + "positive_img/" + self.pfile_list[int(index / 2)]), "list" : torch.load(self.path + "positive_list/" + self.pfile_list[int(index / 2)])}, 1
-            return {"image" : self.all_p_img[int(index / 2)], "list" : self.all_p_list[int(index / 2)]}, 1
-
-            # return {"image":data[0], "zoom" : data[1], "list" : data[2]}, 1
+        if index < len(self.all_ins_list):
+            return {"image" : self.all_ins_img[index], "list" : self.all_ins_list[index]}, 2
+        elif index < len(self.all_ins_list) + len(self.all_del_list):
+            index -= len(self.all_ins_list)
+            return {"image" : self.all_del_img[index], "list" : self.all_del_list[index]}, 1
         else:
-            # data = torch.load(self.path + "negative_data/" + self.nfile_list[int(index / 2)])
-            # data = self.pool.map(torch.load, [self.path + "negative_img/" + self.nfile_list[int(index / 2)], self.path + "negative_zoom/" + self.nfile_list[int(index / 2)], self.path + "negative_list/" + self.nfile_list[int(index / 2)]])
-            # return {"image" : torch.load(self.path + "negative_img/" + self.nfile_list[int(index / 2)]), "list" : torch.load(self.path + "negative_list/" + self.nfile_list[int(index / 2)])}, 0
-            return {"image" : self.all_n_img[int(index / 2)], "list" : self.all_n_list[int(index / 2)]}, 0
+            index -= len(self.all_ins_list) + len(self.all_del_list)
+            return {"image" : self.all_n_img[index], "list" : self.all_n_list[index]}, 0
+
+
+        # if index % 2 ==0:
+        #     # data = torch.load(self.path + "positive_data/" + self.pfile_list[int(index / 2)])
+        #     # data = self.pool.map(torch.load, [self.path + "positive_img/" + self.pfile_list[int(index / 2)], self.path + "positive_zoom/" + self.pfile_list[int(index / 2)], self.path + "positive_list/" + self.pfile_list[int(index / 2)]])
+        #     # return {"image" : torch.load(self.path + "positive_img/" + self.pfile_list[int(index / 2)]), "list" : torch.load(self.path + "positive_list/" + self.pfile_list[int(index / 2)])}, 1
+        #     return {"image" : self.all_p_img[int(index / 2)], "list" : self.all_p_list[int(index / 2)]}, 1
+
+        #     # return {"image":data[0], "zoom" : data[1], "list" : data[2]}, 1
+        # else:
+        #     # data = torch.load(self.path + "negative_data/" + self.nfile_list[int(index / 2)])
+        #     # data = self.pool.map(torch.load, [self.path + "negative_img/" + self.nfile_list[int(index / 2)], self.path + "negative_zoom/" + self.nfile_list[int(index / 2)], self.path + "negative_list/" + self.nfile_list[int(index / 2)]])
+        #     # return {"image" : torch.load(self.path + "negative_img/" + self.nfile_list[int(index / 2)]), "list" : torch.load(self.path + "negative_list/" + self.nfile_list[int(index / 2)])}, 0
+        #     return {"image" : self.all_n_img[int(index / 2)], "list" : self.all_n_list[int(index / 2)]}, 0
 
 
             # return {"image":data[0], "zoom" : data[1], "list" : data[2]}, 0
