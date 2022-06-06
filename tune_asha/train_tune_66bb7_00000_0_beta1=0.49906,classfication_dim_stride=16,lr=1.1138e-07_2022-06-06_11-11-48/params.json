@@ -1,0 +1,6 @@
+{
+  "batch_size": 4,
+  "beta1": 0.49905781085198797,
+  "classfication_dim_stride": 16,
+  "lr": 1.1137637252951047e-07
+}
