@@ -26,7 +26,7 @@ import list2img
 
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 
 seed_everything(2022)
@@ -598,7 +598,7 @@ def gan_tune(num_samples=200, num_epochs=200, gpus_per_trial=1):
 
 
 
-# main_train()
+main_train()
 # ray.init(num_cpus=12, num_gpus=3)
-ray.init()
-gan_tune()
+# ray.init()
+# gan_tune()
