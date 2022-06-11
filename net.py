@@ -1,17 +1,16 @@
 import os
-import math
-from pytorch_lightning.core.hooks import CheckpointHooks
 import torch
-import pytorch_lightning as pl
 import torch.nn as nn
 import torch.nn.functional as F
+import math
+from pytorch_lightning.core.hooks import CheckpointHooks
+import pytorch_lightning as pl
 from ray import tune
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 import torch.distributions.multivariate_normal as mn
 from torch.utils.data import DataLoader, WeightedRandomSampler, Subset
 import torchvision
-import math
 import utilities as ut
 from pudb import set_trace
 from multiprocessing import Pool, cpu_count
@@ -121,6 +120,34 @@ class conv2ds_after_resnet(nn.Module):
             out=layer(out)
         return out
 
+class FocalLoss(nn.Module):
+    def __init__(self,alpha=0.25, gamma=2.0,use_sigmoid=True):
+        super().__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.use_sigmoid = use_sigmoid
+        if use_sigmoid:
+            self.sigmoid = nn.Sigmoid()
+
+    def forward(self, pred: torch.Tensor, target: torch.Tensor):
+        r"""
+        Focal loss
+        :param pred: shape=(B,  HW)
+        :param label: shape=(B, HW)
+        """
+        if self.use_sigmoid:
+            pred = self.sigmoid(pred)
+        pred = pred.view(-1)
+        label = target.view(-1)
+        pos = torch.nonzero(label > 0).squeeze(1)
+        pos_num = max(pos.numel(),1.0)
+        mask = ~(label == -1)
+        pred = pred[mask]
+        label= label[mask]
+        focal_weight = self.alpha *(label- pred).abs().pow(self.gamma) * (label> 0.0).float() + (1 - self.alpha) * pred.abs().pow(self.gamma) * (label<= 0.0).float()
+        loss = F.binary_cross_entropy(pred, label, reduction='none') * focal_weight
+        return loss.sum()/pos_num
+
 class IDENet(pl.LightningModule):
 
     def __init__(self, path, config):
@@ -128,6 +155,9 @@ class IDENet(pl.LightningModule):
 
         self.lr = config["lr"]
         self.beta1 = config['beta1']
+        self.beta2 = config['beta2']
+
+        self.weight_decay = config['weight_decay']
         self.batch_size = config["batch_size"]
         # self.conv2d_dim_stride = config["conv2d_dim_stride"]  # [1, 3]
         self.classfication_dim_stride = config["classfication_dim_stride"] #[1, 997]
@@ -174,7 +204,8 @@ class IDENet(pl.LightningModule):
             nn.Softmax(1)
         )
 
-        self.criterion = nn.CrossEntropyLoss()
+        # self.criterion = nn.CrossEntropyLoss()
+        self.criterion = FocalLoss() # 样本不平衡loss
 
 
         # full_dim = [9, 4, 2, 1]
@@ -278,18 +309,35 @@ class IDENet(pl.LightningModule):
         y_hat = self.softmax(y_hat)
         loss = self.criterion(y_hat, y_t)
 
+        # opt_e = self.optimizers()
+        # self.manual_backward(loss)
+        # opt_e.step()
+
         # logs metrics for each training_step,
         # and the average across the epoch, to the progress bar and logger
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+
         # set_trace()
-        return {'loss': loss, 'pred': torch.mean((y == (y_hat[:, 0] < y_hat[:, 1])).float())}
+        return {'loss': loss, 'y': y, 'y_hat' : torch.argmax(y_hat, dim = 1)}
 
     def training_epoch_end(self, output):
         # set_trace()
-        prediction = []
+        y = []
+        y_hat = []
+
         for out in output:
-            prediction.append(out['pred'])
-        self.log('train_mean', torch.mean(torch.tensor(prediction)), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+            y.extend(out['y'])
+            y_hat.extend(out['y_hat'])
+
+        y = torch.tensor(y).reshape(-1)
+        y_hat = torch.tensor(y_hat).reshape(-1)
+
+        self.log('train_mean', torch.mean((y == y_hat).float()), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        self.log('train_0_acc', torch.mean((y == y_hat).float()[y == 0]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_1_acc', torch.mean((y == y_hat).float()[y == 1]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_2_acc', torch.mean((y == y_hat).float()[y == 2]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
 
     def validation_step(self, batch, batch_idx):
         x, y = batch  # x2(length, 12)
@@ -373,25 +421,34 @@ class IDENet(pl.LightningModule):
         # and the average across the epoch, to the progress bar and logger
         self.log('validation_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         # set_trace()
-        return torch.mean((y == (y_hat[:, 0] < y_hat[:, 1])).float())
+
+        return {'y': y, 'y_hat' : torch.argmax(y_hat, dim = 1)}
 
     def validation_epoch_end(self, output):
-        self.log('validation_mean', torch.mean(torch.tensor(output)), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        y = []
+        y_hat = []
+
+        for out in output:
+            y.extend(out['y'])
+            y_hat.extend(out['y_hat'])
+
+        y = torch.tensor(y).reshape(-1)
+        y_hat = torch.tensor(y_hat).reshape(-1)
+
+        self.log('validation_mean', torch.mean((y == y_hat).float()), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        self.log('validation_0_acc', torch.mean((y == y_hat).float()[y == 0]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_1_acc', torch.mean((y == y_hat).float()[y == 1]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_2_acc', torch.mean((y == y_hat).float()[y == 2]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        tune.report(validation_mean = torch.mean((y == y_hat).float()))
 
 
     def test_step(self, batch, batch_idx):
         pass
 
     def test_epoch_end(self, output):
-        N = []
-        for i in range(self.class_num):
-            label_mean = torch.mean(self.Z[i][1:], dim=0).float()
-            label_cov = torch.from_numpy(
-                np.cov(self.Z[i][1:].numpy(), rowvar=False)).float()
-            m = mn.MultivariateNormal(label_mean, label_cov)
-            N.append(m)
-        torch.save({'distribution': N}, os.path.join(
-            self.data_dir, 'gan_code/class_distribution') + str(data_type) + '.dt')
+        pass
 
     def prepare_data(self):
 
@@ -421,7 +478,7 @@ class IDENet(pl.LightningModule):
 
     def configure_optimizers(self):
         opt_e = torch.optim.Adam(
-            self.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
+            self.parameters(), lr=self.lr, betas=(self.beta1, self.beta2), weight_decay=self.weight_decay)
         # opt_d = torch.optim.Adam(
         #     self.line.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
 
