@@ -1,0 +1,9 @@
+{
+  "__trial_index__": 0,
+  "batch_size": 8,
+  "beta1": 0.9052639982082029,
+  "beta2": 0.9989474985065655,
+  "classfication_dim_stride": 199,
+  "lr": 0.00011936558341011734,
+  "weight_decay": 0.08744900488449242
+}
