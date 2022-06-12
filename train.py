@@ -23,11 +23,9 @@ from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
     TuneReportCheckpointCallback
 import list2img
+from hyperopt import hp
 
-
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "1, 2, 3"
 
 seed_everything(2022)
 
@@ -494,7 +492,7 @@ else:
     torch.save(all_negative_list, data_dir + '/all_negative_list' + '.pt')
 
 
-my_label = "11+11channel_predict"
+my_label = "7+11channel_predict"
 
 logger = TensorBoardLogger(os.path.join("/home/xwm/DeepSVFilter/code", "channel_predict"), name=my_label)
 
@@ -518,11 +516,20 @@ checkpoint_callback = ModelCheckpoint(
 def main_train():
     config = {
         "lr": 1e-6,
-        "batch_size": 14,
+        "batch_size": 14, # 14,
         "beta1": 0.9,
+        "beta2": 0.999,
+        'weight_decay': 0,
         "classfication_dim_stride": 300,
     }
-
+    # config = {
+    #     "lr": 1.11376e-7,
+    #     "batch_size": 4, # 14,
+    #     "beta1": 0.899906,
+    #     "beta2": 0.998613,
+    #     'weight_decay': 0.0049974,
+    #     "classfication_dim_stride": 201,
+    # }
 
 
     model = IDENet(data_dir, config)
@@ -530,7 +537,7 @@ def main_train():
     resume = "./checkpoints_predict/" + my_label + "/epoch=33-validation_mean=0.95-train_mean=0.97.ckpt"
 
     trainer = pl.Trainer(
-        max_epochs=200,
+        max_epochs=20,
         gpus=1,
         check_val_every_n_epoch=1,
         # replace_sampler_ddp=False,
@@ -549,32 +556,68 @@ def train_tune(config, checkpoint_dir=None, num_epochs=200, num_gpus=1):
     trainer = pl.Trainer(
         max_epochs=num_epochs,
         gpus=num_gpus,
+        check_val_every_n_epoch=1,
         logger=logger,
         # progress_bar_refresh_rate=0,
         callbacks=[checkpoint_callback],
+        # auto_scale_batch_size="binsearch",
     )
     trainer.fit(model)
 
+class MyStopper(tune.Stopper):
+    def __init__(self, metric, value, epoch = 1):
+        self._metric = metric
+        self._value = value
+        self._epoch = epoch
 
-def gan_tune(num_samples=200, num_epochs=200, gpus_per_trial=1):
+    def __call__(self, trial_id, result):
+        """Return a boolean representing if the tuning has to stop."""
+        # If the current iteration has to stop
+        # if result[self._metric] < self._mean:
+        #     # we increment the total counter of iterations
+        #     self._iterations += 1
+        # else:
+        #     self._iterations = 0
+
+
+        # and then call the method that re-executes
+        # the checks, including the iterations.
+        # return self._iterations >= self._patience
+        return (result["training_iteration"] > self._epoch) and (result[self._metric] < self._value)
+
+
+    def stop_all(self):
+        """Return whether to stop and prevent trials from starting."""
+        return False
+
+# def stopper(trial_id, result):
+#     return result["validation_mean"] <= 0.343
+
+def gan_tune(num_samples=2000, num_epochs=30, gpus_per_trial=1):
     config = {
-        "lr": tune.loguniform(1e-7, 1e-2),
-        "batch_size": 4,
-        "beta1": tune.uniform(0, 1),
+        "lr": tune.loguniform(1e-9, 1e-3),
+        "batch_size": 8,
+        "beta1": tune.uniform(0.85, 0.95),
+        "beta2": tune.uniform(0.9985, 0.9995),
+        'weight_decay': tune.uniform(0, 0.1),
         # "conv2d_dim_stride": tune.lograndint(1, 6),
-        "classfication_dim_stride": tune.lograndint(10, 800),
+        "classfication_dim_stride": tune.lograndint(14, 800),
     }
 
-    # bayesopt = HyperOptSearch(config, metric="prc_value", mode="max")
-    # re_search_alg = Repeater(bayesopt, repeat=5)
+    bayesopt = HyperOptSearch(config, metric="validation_mean", mode="max")
+    re_search_alg = Repeater(bayesopt, repeat=1)
+
     scheduler = ASHAScheduler(
         max_t=num_epochs,
         metric='validation_mean',
-        mode='max')
+        mode='max',
+        grace_period=1,
+        reduction_factor=2,
+        )
 
     reporter = CLIReporter(
-        parameter_columns=["lr", 'beta1', "classfication_dim_stride"],
-        metric_columns=["train_mean", "validation_mean"])
+        parameter_columns=["lr", 'beta1', 'beta2', 'weight_decay', "classfication_dim_stride"],
+        metric_columns=['train_loss', "train_mean", 'validation_loss', "validation_mean"])
 
     analysis = tune.run(
         tune.with_parameters(
@@ -583,22 +626,24 @@ def gan_tune(num_samples=200, num_epochs=200, gpus_per_trial=1):
         ),
         local_dir="/home/xwm/DeepSVFilter/code/",
         resources_per_trial={
-            "cpu": 4,
+            "cpu": 5,
             "gpu": 1,
         },
-        metric="validation_mean",
-        mode="max",
-        config=config,
+        stop = MyStopper("validation_mean", value = 0.343, epoch = 2),
+        # config=config,
         num_samples=num_samples,
-        # scheduler=scheduler,
+        # metric='validation_mean',
+        # mode='max',
+        scheduler=scheduler,
         progress_reporter=reporter,
-        # resume=True,
-        # search_alg=re_search_alg,
+        resume="AUTO",
+        search_alg=re_search_alg,
         name="tune_asha")
 
+    torch.save(analysis, "analysis.pt")
 
 
-main_train()
+# main_train()
 # ray.init(num_cpus=12, num_gpus=3)
-# ray.init()
-# gan_tune()
+ray.init()
+gan_tune()
