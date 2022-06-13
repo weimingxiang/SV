@@ -441,7 +441,7 @@ class IDENet(pl.LightningModule):
         self.log('validation_1_acc', torch.mean((y == y_hat).float()[y == 1]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log('validation_2_acc', torch.mean((y == y_hat).float()[y == 2]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
-        tune.report(validation_mean = torch.mean((y == y_hat).float()))
+        # tune.report(validation_mean = torch.mean((y == y_hat).float()))
 
 
     def test_step(self, batch, batch_idx):
