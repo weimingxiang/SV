@@ -595,13 +595,13 @@ class MyStopper(tune.Stopper):
 
 def gan_tune(num_samples=2000, num_epochs=30, gpus_per_trial=1):
     config = {
-        "lr": tune.loguniform(1e-9, 1e-3),
+        "lr": tune.loguniform(1e-8, 1e-3),
         "batch_size": 8,
-        "beta1": tune.uniform(0.85, 0.95),
-        "beta2": tune.uniform(0.9985, 0.9995),
-        'weight_decay': tune.uniform(0, 0.1),
+        "beta1": 0.9, # tune.uniform(0.895, 0.905),
+        "beta2": 0.999, # tune.uniform(0.9989, 0.9991),
+        'weight_decay': tune.uniform(0, 1e-4),
         # "conv2d_dim_stride": tune.lograndint(1, 6),
-        "classfication_dim_stride": tune.lograndint(14, 800),
+        "classfication_dim_stride": tune.lograndint(20, 700),
     }
 
     bayesopt = HyperOptSearch(config, metric="validation_mean", mode="max")
