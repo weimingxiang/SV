@@ -516,11 +516,11 @@ checkpoint_callback = ModelCheckpoint(
 def main_train():
     config = {
         "lr": 1e-6,
-        "batch_size": 14, # 14,
+        "batch_size": 8, # 14,
         "beta1": 0.9,
         "beta2": 0.999,
         'weight_decay': 0,
-        "classfication_dim_stride": 300,
+        "classfication_dim_stride": 20,
     }
     # config = {
     #     "lr": 1.11376e-7,
@@ -559,7 +559,13 @@ def train_tune(config, checkpoint_dir=None, num_epochs=200, num_gpus=1):
         check_val_every_n_epoch=1,
         logger=logger,
         # progress_bar_refresh_rate=0,
-        callbacks=[checkpoint_callback],
+        # callbacks=[checkpoint_callback],
+        callbacks = TuneReportCallback(
+        {
+            "validation_loss": "validation_loss",
+            "validation_mean": "validation_mean"
+        },
+        on="validation_end"),
         # auto_scale_batch_size="binsearch",
     )
     trainer.fit(model)
@@ -593,7 +599,7 @@ class MyStopper(tune.Stopper):
 # def stopper(trial_id, result):
 #     return result["validation_mean"] <= 0.343
 
-def gan_tune(num_samples=2000, num_epochs=30, gpus_per_trial=1):
+def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
     config = {
         "lr": tune.loguniform(1e-8, 1e-3),
         "batch_size": 8,
@@ -629,7 +635,7 @@ def gan_tune(num_samples=2000, num_epochs=30, gpus_per_trial=1):
             "cpu": 5,
             "gpu": 1,
         },
-        stop = MyStopper("validation_mean", value = 0.343, epoch = 2),
+        stop = MyStopper("validation_mean", value = 0.343, epoch = 1),
         # config=config,
         num_samples=num_samples,
         # metric='validation_mean',
@@ -638,6 +644,8 @@ def gan_tune(num_samples=2000, num_epochs=30, gpus_per_trial=1):
         progress_reporter=reporter,
         resume="AUTO",
         search_alg=re_search_alg,
+        max_failures = -1,
+        server_port = 60060,
         name="tune_asha")
 
     torch.save(analysis, "analysis.pt")
