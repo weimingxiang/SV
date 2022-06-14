@@ -86,6 +86,37 @@ class attention_classfication(nn.Module):
             out=layer(out)
         return out
 
+class resnet_attention_classfication(nn.Module):
+    def __init__(self, full_dim):
+        super(resnet_attention_classfication, self).__init__()
+        dim1 = full_dim[:-1]
+        dim2 = full_dim[1:]
+        self.layers=nn.ModuleList(
+            nn.Sequential(
+                attention(k, m),
+                nn.Linear(m, m),
+                nn.ReLU(inplace=True),
+            ) for k, m in zip(dim1, dim2)
+        )
+
+        self.res2=nn.ModuleList(
+            nn.Sequential(
+                nn.Linear(full_dim[2 * index], full_dim[2 * (index + 1)]),
+                nn.ReLU(inplace=True),
+            ) for index in range(int(len(full_dim) / 2) - 1)
+        )
+
+    def forward(self,x):
+        out = x
+        for i in range(len(self.layers)):
+            if i % 2 == 0:
+                x = out
+                out = self.layers[i](out)
+            else:
+                out = self.layers[i](out) + self.res2[int(i / 2)](x)
+
+        return out
+
 class conv2ds_sequential(nn.Module):
     def __init__(self, full_dim):
         super(conv2ds_sequential, self).__init__()
@@ -111,13 +142,24 @@ class conv2ds_after_resnet(nn.Module):
             nn.Sequential(
                 nn.Conv2d(in_channels=k, out_channels=k+1, kernel_size=3, stride=1), # (m, 224, 224)
                 nn.BatchNorm2d(k+1),
+                nn.Conv2d(in_channels=k+1, out_channels=k+1, kernel_size=3, stride=1), # (m, 224, 224)
                 nn.ReLU(inplace=True),
             ) for k in range(in_dim, out_dim)
         )
+
+        self.layers2=nn.ModuleList(
+            nn.Sequential(
+                nn.Conv2d(in_channels=k, out_channels=k+1, kernel_size=3, stride=1), # (m, 224, 224)
+                nn.BatchNorm2d(k+1),
+                nn.ReLU(inplace=True),
+            ) for k in range(in_dim, out_dim)
+        )
+
     def forward(self,x):
         out=x
-        for i,layer in enumerate(self.layers):
-            out=layer(out)
+        for i in range(len(self.layers)):
+            out=self.layers[i](out) + self.layers2[i](out)
+
         return out
 
 class FocalLoss(nn.Module):
@@ -160,7 +202,7 @@ class IDENet(pl.LightningModule):
         self.weight_decay = config['weight_decay']
         self.batch_size = config["batch_size"]
         # self.conv2d_dim_stride = config["conv2d_dim_stride"]  # [1, 3]
-        self.classfication_dim_stride = config["classfication_dim_stride"] #[1, 997]
+        # self.classfication_dim_stride = config["classfication_dim_stride"] #[1, 997]
 
         self.path = path
         # self.positive_img = positive_img
@@ -195,9 +237,9 @@ class IDENet(pl.LightningModule):
 
 
         # full_dim = [1000, 500, 250, 125, 62, 31, 15, 7]
-        full_dim = range(1000 + 768, 3, -self.classfication_dim_stride) # 1000 + 768 -> 2
-        # full_dim = [1000 + 768, 1000, 500, 50, 10]
-        self.classfication = attention_classfication(full_dim)
+        # full_dim = range(1000 + 768, 3, -self.classfication_dim_stride) # 1000 + 768 -> 2
+        full_dim = [1000 + 768, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6]
+        self.classfication = resnet_attention_classfication(full_dim)
 
         self.softmax = nn.Sequential(
             nn.Linear(full_dim[-1], 3),
