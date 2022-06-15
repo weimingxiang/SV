@@ -516,11 +516,11 @@ checkpoint_callback = ModelCheckpoint(
 def main_train():
     config = {
         "lr": 1e-6,
-        "batch_size": 8, # 14,
+        "batch_size": 14, # 14,
         "beta1": 0.9,
         "beta2": 0.999,
         'weight_decay': 0,
-        "classfication_dim_stride": 20,
+        # "classfication_dim_stride": 20, # no use
     }
     # config = {
     #     "lr": 1.11376e-7,
@@ -545,6 +545,7 @@ def main_train():
         # val_percent_check=0,
         callbacks=[checkpoint_callback],
         # resume_from_checkpoint=resume
+        # auto_lr_find=True,
     )
 
     trainer.fit(model)
@@ -601,13 +602,13 @@ class MyStopper(tune.Stopper):
 
 def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
     config = {
-        "lr": tune.loguniform(1e-8, 1e-3),
-        "batch_size": 8,
+        "lr": tune.loguniform(1e-8, 1e-2),
+        "batch_size": 14,
         "beta1": 0.9, # tune.uniform(0.895, 0.905),
         "beta2": 0.999, # tune.uniform(0.9989, 0.9991),
-        'weight_decay': tune.uniform(0, 1e-4),
+        'weight_decay': tune.uniform(0, 1e-3),
         # "conv2d_dim_stride": tune.lograndint(1, 6),
-        "classfication_dim_stride": tune.lograndint(20, 700),
+        # "classfication_dim_stride": tune.lograndint(20, 700),
     }
 
     bayesopt = HyperOptSearch(config, metric="validation_mean", mode="max")
@@ -622,7 +623,7 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
         )
 
     reporter = CLIReporter(
-        parameter_columns=["lr", 'beta1', 'beta2', 'weight_decay', "classfication_dim_stride"],
+        parameter_columns=["lr", 'weight_decay'],
         metric_columns=['train_loss', "train_mean", 'validation_loss', "validation_mean"])
 
     analysis = tune.run(
@@ -635,7 +636,7 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
             "cpu": 5,
             "gpu": 1,
         },
-        stop = MyStopper("validation_mean", value = 0.343, epoch = 1),
+        # stop = MyStopper("validation_mean", value = 0.343, epoch = 1),
         # config=config,
         num_samples=num_samples,
         # metric='validation_mean',
@@ -646,12 +647,12 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
         search_alg=re_search_alg,
         max_failures = -1,
         server_port = 60060,
-        name="tune_asha")
+        name="tune_lr_asha")
 
     torch.save(analysis, "analysis.pt")
 
 
 # main_train()
-# ray.init(num_cpus=12, num_gpus=3)
+# # ray.init(num_cpus=12, num_gpus=3)
 ray.init()
 gan_tune()
