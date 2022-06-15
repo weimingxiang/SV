@@ -1,0 +1,1386 @@
+Failure # 1 (occurred at 2022-06-14_22-19-34)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=118756, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=118756, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 2 (occurred at 2022-06-14_22-20-46)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=155689, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=155689, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 3 (occurred at 2022-06-14_22-21-49)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=156475, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=156475, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 4 (occurred at 2022-06-14_22-22-50)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=157160, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=157160, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 5 (occurred at 2022-06-14_22-23-50)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=157848, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=157848, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 6 (occurred at 2022-06-14_22-24-55)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=158605, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=158605, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 7 (occurred at 2022-06-14_22-25-54)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=159292, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=159292, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 8 (occurred at 2022-06-14_22-26-55)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=160034, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=160034, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 9 (occurred at 2022-06-14_22-27-52)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=160669, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=160669, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 10 (occurred at 2022-06-14_22-28-52)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=160937, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=160937, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 11 (occurred at 2022-06-14_22-29-47)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=161944, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=161944, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 12 (occurred at 2022-06-14_22-30-44)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=162621, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=162621, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 13 (occurred at 2022-06-14_22-31-44)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=163289, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=163289, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 14 (occurred at 2022-06-14_22-32-48)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=163989, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=163989, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 15 (occurred at 2022-06-14_22-33-49)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=164654, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=164654, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 16 (occurred at 2022-06-14_22-34-49)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=165367, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=165367, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 17 (occurred at 2022-06-14_22-36-17)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=166315, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=166315, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 18 (occurred at 2022-06-14_22-37-20)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=167015, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=167015, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 19 (occurred at 2022-06-14_22-38-26)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=168026, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=168026, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 20 (occurred at 2022-06-14_22-39-30)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=168973, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=168973, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+Failure # 21 (occurred at 2022-06-14_22-40-27)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=169785, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=169785, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "train.py", line 572, in train_tune
+    trainer.fit(model)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 741, in fit
+    self._fit_impl, model, train_dataloaders, val_dataloaders, datamodule, ckpt_path
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/trainer/trainer.py", line 1145, in _run
+    self.accelerator.setup(self)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/gpu.py", line 46, in setup
+    return super().setup(trainer)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 91, in setup
+    self.setup_training_type_plugin()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/accelerators/accelerator.py", line 363, in setup_training_type_plugin
+    self.training_type_plugin.setup()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 71, in setup
+    self.model_to_device()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/plugins/training_type/single_device.py", line 68, in model_to_device
+    self._model.to(self.root_device)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/pytorch_lightning/core/mixins/device_dtype_mixin.py", line 111, in to
+    return super().to(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 899, in to
+    return self._apply(convert)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 570, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 593, in _apply
+    param_applied = fn(param)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/torch/nn/modules/module.py", line 897, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
