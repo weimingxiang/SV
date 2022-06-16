@@ -564,7 +564,10 @@ def train_tune(config, checkpoint_dir=None, num_epochs=200, num_gpus=1):
         callbacks = TuneReportCallback(
         {
             "validation_loss": "validation_loss",
-            "validation_mean": "validation_mean"
+            "validation_0_acc": "validation_0_acc",
+            "validation_1_acc": "validation_1_acc",
+            "validation_2_acc": "validation_2_acc",
+            "validation_mean": "validation_mean",
         },
         on="validation_end"),
         # auto_scale_batch_size="binsearch",
@@ -602,7 +605,7 @@ class MyStopper(tune.Stopper):
 
 def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
     config = {
-        "lr": tune.loguniform(1e-8, 1e-2),
+        "lr": tune.loguniform(1e-7, 1e-5),
         "batch_size": 14,
         "beta1": 0.9, # tune.uniform(0.895, 0.905),
         "beta2": 0.999, # tune.uniform(0.9989, 0.9991),
@@ -646,7 +649,7 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
         resume="AUTO",
         search_alg=re_search_alg,
         max_failures = -1,
-        server_port = 60060,
+        # server_port = 60060,
         name="tune_lr_asha")
 
     torch.save(analysis, "analysis.pt")
