@@ -564,9 +564,9 @@ def train_tune(config, checkpoint_dir=None, num_epochs=200, num_gpus=1):
         callbacks = TuneReportCallback(
         {
             "validation_loss": "validation_loss",
-            "validation_0_acc": "validation_0_acc",
-            "validation_1_acc": "validation_1_acc",
-            "validation_2_acc": "validation_2_acc",
+            "validation_0_f1": "validation_0_f1",
+            "validation_1_f1": "validation_1_f1",
+            "validation_2_f1": "validation_2_f1",
             "validation_mean": "validation_mean",
         },
         on="validation_end"),
@@ -609,7 +609,7 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
         "batch_size": 14,
         "beta1": 0.9, # tune.uniform(0.895, 0.905),
         "beta2": 0.999, # tune.uniform(0.9989, 0.9991),
-        'weight_decay': tune.uniform(0, 5e-3),
+        'weight_decay': tune.uniform(0, 0.1),
         # "conv2d_dim_stride": tune.lograndint(1, 6),
         # "classfication_dim_stride": tune.lograndint(20, 700),
     }
@@ -649,6 +649,7 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
         resume="AUTO",
         search_alg=re_search_alg,
         max_failures = -1,
+        reuse_actors = True,
         # server_port = 60060,
         name="tune_lr_asha")
 
