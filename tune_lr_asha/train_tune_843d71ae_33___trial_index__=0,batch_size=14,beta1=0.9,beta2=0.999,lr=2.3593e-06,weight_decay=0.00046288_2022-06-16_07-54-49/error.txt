@@ -4486,3 +4486,21 @@ RuntimeError: CUDA error: out of memory
 CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
 
+Failure # 69 (occurred at 2022-06-16_20-35-52)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1765, in get
+    raise value
+ray.exceptions.RayActorError: The actor died unexpectedly before finishing this task.
+	class_name: ImplicitFunc
+	actor_id: 9c3f8c8c4302743493cd4c7701000000
+	pid: 115039
+	namespace: a69f6d54-1e32-4ff9-be0c-65874c84c5fe
+	ip: 192.168.249.74
+The actor is dead because its worker process has died. Worker exit type: SYSTEM_ERROR_EXIT
+
