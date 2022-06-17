@@ -16,6 +16,7 @@ from pudb import set_trace
 from multiprocessing import Pool, cpu_count
 import random
 from transformers import AlbertModel
+from sklearn.metrics import classification_report
 
 class MultiLP(nn.Module):
     def __init__(self, full_dim):
@@ -374,11 +375,16 @@ class IDENet(pl.LightningModule):
         y = torch.tensor(y).reshape(-1)
         y_hat = torch.tensor(y_hat).reshape(-1)
 
-        self.log('train_mean', torch.mean((y == y_hat).float()), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        metric = classification_report(y, y_hat, output_dict = True)
 
-        self.log('train_0_acc', torch.mean((y == y_hat).float()[y == 0]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('train_1_acc', torch.mean((y == y_hat).float()[y == 1]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('train_2_acc', torch.mean((y == y_hat).float()[y == 2]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_mean', metric['accuracy'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        self.log('train_macro_f1', metric['macro avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_weighted_f1', metric['weighted avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        self.log('train_0_f1', metric['0']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_1_f1', metric['1']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_2_f1', metric['2']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
 
     def validation_step(self, batch, batch_idx):
@@ -477,11 +483,16 @@ class IDENet(pl.LightningModule):
         y = torch.tensor(y).reshape(-1)
         y_hat = torch.tensor(y_hat).reshape(-1)
 
-        self.log('validation_mean', torch.mean((y == y_hat).float()), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        metric = classification_report(y, y_hat, output_dict = True)
 
-        self.log('validation_0_acc', torch.mean((y == y_hat).float()[y == 0]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('validation_1_acc', torch.mean((y == y_hat).float()[y == 1]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('validation_2_acc', torch.mean((y == y_hat).float()[y == 2]), on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_mean', metric['accuracy'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        self.log('validation_macro_f1', metric['macro avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_weighted_f1', metric['weighted avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        self.log('validation_0_f1', metric['0']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_1_f1', metric['1']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_2_f1', metric['2']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         # tune.report(validation_mean = torch.mean((y == y_hat).float()))
 
