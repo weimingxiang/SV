@@ -609,7 +609,7 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
         "batch_size": 14,
         "beta1": 0.9, # tune.uniform(0.895, 0.905),
         "beta2": 0.999, # tune.uniform(0.9989, 0.9991),
-        'weight_decay': tune.uniform(0, 0.1),
+        'weight_decay': tune.uniform(0, 0.01),
         # "conv2d_dim_stride": tune.lograndint(1, 6),
         # "classfication_dim_stride": tune.lograndint(20, 700),
     }
