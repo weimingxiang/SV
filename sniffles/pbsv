@@ -1,4 +1,5 @@
 for i in $(samtools view -H sorted_final_merged.bam | grep '^@SQ' | cut -f2 | cut -d':' -f2); do
+    echo $i
     pbsv discover --region $i sorted_final_merged.bam sorted_final_merged.$i.svsig.gz
 done
 
