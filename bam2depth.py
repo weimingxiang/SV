@@ -10,7 +10,9 @@ output_file = "output.depth.txt"
 
 cmd = "samtools depth " + data_dir + bam_name + " > " + data_dir + output_file
 print(cmd)
-# subprocess.call(cmd, shell = True)
+print("==== starting samtools deal ====")
+subprocess.call(cmd, shell = True)
+
 # samtools depth sorted_final_merged.bam > output.depth.txt
 
 mymkdir(data_dir + "depth/")
