@@ -1,0 +1,2 @@
+validation_loss,validation_0_f1,validation_1_f1,validation_2_f1,validation_mean,time_this_iter_s,done,timesteps_total,episodes_total,training_iteration,trial_id,experiment_id,date,timestamp,time_total_s,pid,hostname,node_ip,time_since_restore,timesteps_since_restore,iterations_since_restore
+0.4716658294200897,0.5101168155670166,0.0004742708115372807,0.0,0.3424374461174011,2452.528063058853,True,,,1,43cae68c,507389f97c064f2aad50d4f3f6dff5ad,2022-07-06_18-25-54,1657103154,2452.528063058853,109097,localhost.localdomain,192.168.249.74,2452.528063058853,0,1
