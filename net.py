@@ -55,18 +55,18 @@ class classfication(nn.Module):
 class attention(nn.Module):
     def __init__(self, dim, out_dim):
         super(attention, self).__init__()
-        self.Q = nn.Sequential(
+        self.Q_K = nn.Sequential(
             nn.Linear(dim, out_dim),
             nn.Sigmoid(),
         )
-        self.K = nn.Sequential(
+        self.V = nn.Sequential(
             nn.Linear(dim, out_dim),
         )
 
     def forward(self,x):
-        q = self.Q(x)
-        k = self.K(x)
-        out = torch.mul(q, k)
+        qk = self.Q_K(x)
+        v = self.V(x)
+        out = torch.mul(qk, v)
         return out
 
 class attention_classfication(nn.Module):
