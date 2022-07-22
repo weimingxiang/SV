@@ -220,7 +220,9 @@ class IDENet(pl.LightningModule):
         #     nn.Conv2d(in_channels=4, out_channels=3, kernel_size=3, stride=1, padding=1),
         # )
         # conv2d_dim = list(range(11, 3, -self.conv2d_dim_stride))
-        conv2d_dim = list(range(7, 3, -1))
+
+        # conv2d_dim = list(range(7, 3, -1))
+        conv2d_dim = list(range(1, 3, 1)) # test
         conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
 
@@ -239,7 +241,9 @@ class IDENet(pl.LightningModule):
 
         # full_dim = [1000, 500, 250, 125, 62, 31, 15, 7]
         # full_dim = range(1000 + 768, 3, -self.classfication_dim_stride) # 1000 + 768 -> 2
-        full_dim = [1000 + 768, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6]
+
+        # full_dim = [1000 + 768, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6]
+        full_dim = [1000, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6] # test
         self.classfication = resnet_attention_classfication(full_dim)
 
         self.softmax = nn.Sequential(
@@ -272,15 +276,16 @@ class IDENet(pl.LightningModule):
         self.bert.embeddings.LayerNorm = nn.modules.normalization.LayerNorm((11,), eps=1e-12, elementwise_affine=True)
         self.bert.encoder.embedding_hidden_mapping_in = nn.modules.linear.Linear(in_features=11, out_features=768, bias=True)
 
-
-
-    def training_step(self, batch, batch_idx):
+    def training_validation_step(self, batch, batch_idx):
         x, y = batch  # x2(length, 12)
         del batch
         x1 = x["image"]
         x2 = x["list"]
 
-        x1 = self.conv2ds(x1)
+        # x1 = self.conv2ds(x1)
+
+        x1 = self.conv2ds(x1[:, 2:3, :, :])
+
         x1 = self.resnet_model(x1)
 
         # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
@@ -318,7 +323,9 @@ class IDENet(pl.LightningModule):
         # x2 = x2.reshape(-1, 11)  # b, 256, 11
         # x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
         #     # n * 128
-        x2 = self.bert(inputs_embeds=x2)[1]
+
+        # ===================== #
+        # x2 = self.bert(inputs_embeds=x2)[1]
 
         # output = self.bert(input_ids=None,
         #     attention_mask=None,
@@ -345,12 +352,96 @@ class IDENet(pl.LightningModule):
             else:
                 y_t[i] = torch.tensor([0, 0, 1])
 
-        y_hat = self.classfication(torch.cat([x1, x2], 1))
-        # y_hat = self.classfication(x1)
+        # y_hat = self.classfication(torch.cat([x1, x2], 1))
+        y_hat = self.classfication(x1) # test
 
         # y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
         loss = self.criterion(y_hat, y_t)
+        return loss, y, y_hat
+
+    # def training_validation_step(self, batch, batch_idx):
+    #     x, y = batch  # x2(length, 12)
+    #     del batch
+    #     x1 = x["image"]
+    #     x2 = x["list"]
+
+    #     x1 = self.conv2ds(x1)
+    #     x1 = self.resnet_model(x1)
+
+    #     # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
+
+    #     # x2 = x[:, 11 * 224 * 224:].reshape(-1, 9)
+    #     # del x
+    #     # x_sm = torch.empty(len(x2), 2)
+    #     # x_lstm = torch.empty(len(x2), 25 * 5) # hidden_size * num_layers
+    #     # # sum and max
+    #     # for i, xx in enumerate(x2):
+    #     #     xx = self.fullconnect(xx)
+    #     #     x_sm[i][0] = torch.sum(xx)
+    #     #     x_sm[i][1] = torch.max(xx)
+    #     # # while len(xx)  池化小于最大长度后使用albert
+    #     # x_id = torch.zeros([len(x2), 512, 128])
+    #     # x_mask = torch.zeros([len(x2), 512], dtype=torch.int)
+    #     # for i, xx in enumerate(x2):
+    #     #     xx = self.albert_fullconnect(xx).t()
+    #     #     while xx.shape[-1] > 512:
+    #     #         xx = self.conv1d(xx)
+    #     #     # n * 128
+    #     #     x_id[i, :xx.shape[-1]] = xx.t()
+    #     #     x_mask[i, :xx.shape[-1]] = 1
+
+    #     # output = self.bert(input_ids=None,
+    #     #     attention_mask=None,
+    #     #     token_type_ids=x_mask,
+    #     #     position_ids=None,
+    #     #     head_mask=None,
+    #     #     inputs_embeds=x_id,
+    #     #     output_attentions=None,
+    #     #     output_hidden_states=None,
+    #     #     return_dict=None)
+
+    #     # x2 = x2.reshape(-1, 11)  # b, 256, 11
+    #     # x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
+    #     #     # n * 128
+    #     x2 = self.bert(inputs_embeds=x2)[1]
+
+    #     # output = self.bert(input_ids=None,
+    #     #     attention_mask=None,
+    #     #     token_type_ids=None,
+    #     #     position_ids=None,
+    #     #     head_mask=None,
+    #     #     inputs_embeds=x2,
+    #     #     output_attentions=None,
+    #     #     output_hidden_states=None,
+    #     #     return_dict=None)
+
+    #     # output[1]    # b, 768
+
+    #     # # 直接使用LSTM
+    #     # for i, xx in enumerate(x2):
+    #     #     x_lstm[i] = self.lstm_layer(xx.unsqueeze(0)).reshape(-1)
+
+    #     y_t = torch.empty(len(y), 3).cuda()
+    #     for i, y_item in enumerate(y):
+    #         if y_item == 0:
+    #             y_t[i] = torch.tensor([1, 0, 0])
+    #         elif y_item == 1:
+    #             y_t[i] = torch.tensor([0, 1, 0])
+    #         else:
+    #             y_t[i] = torch.tensor([0, 0, 1])
+
+    #     y_hat = self.classfication(torch.cat([x1, x2], 1))
+    #     # y_hat = self.classfication(x1)
+
+    #     # y_hat = torch.cat([y_hat, xx2], 0)
+    #     y_hat = self.softmax(y_hat)
+    #     loss = self.criterion(y_hat, y_t)
+    #     return loss, y, y_hat
+
+
+    def training_step(self, batch, batch_idx):
+        loss, y, y_hat = self.training_validation_step(batch, batch_idx)
 
         # opt_e = self.optimizers()
         # self.manual_backward(loss)
@@ -388,82 +479,7 @@ class IDENet(pl.LightningModule):
 
 
     def validation_step(self, batch, batch_idx):
-        x, y = batch  # x2(length, 12)
-        del batch
-        x1 = x["image"]
-        x2 = x["list"]
-
-        x1 = self.conv2ds(x1)
-        x1 = self.resnet_model(x1)
-
-        # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
-
-        # x2 = x[:, 11 * 224 * 224:].reshape(-1, 9)
-        # del x
-        # x_sm = torch.empty(len(x2), 2)
-        # x_lstm = torch.empty(len(x2), 25 * 5) # hidden_size * num_layers
-        # # sum and max
-        # for i, xx in enumerate(x2):
-        #     xx = self.fullconnect(xx)
-        #     x_sm[i][0] = torch.sum(xx)
-        #     x_sm[i][1] = torch.max(xx)
-        # # while len(xx)  池化小于最大长度后使用albert
-        # x_id = torch.zeros([len(x2), 512, 128])
-        # x_mask = torch.zeros([len(x2), 512], dtype=torch.int)
-        # for i, xx in enumerate(x2):
-        #     xx = self.albert_fullconnect(xx).t()
-        #     while xx.shape[-1] > 512:
-        #         xx = self.conv1d(xx)
-        #     # n * 128
-        #     x_id[i, :xx.shape[-1]] = xx.t()
-        #     x_mask[i, :xx.shape[-1]] = 1
-
-        # output = self.bert(input_ids=None,
-        #     attention_mask=None,
-        #     token_type_ids=x_mask,
-        #     position_ids=None,
-        #     head_mask=None,
-        #     inputs_embeds=x_id,
-        #     output_attentions=None,
-        #     output_hidden_states=None,
-        #     return_dict=None)
-
-        # x2 = x2.reshape(-1, 11)  # b, 256, 11
-        # x2 = self.albert_fullconnect(x2).reshape(-1, 512, 128)
-        #     # n * 128
-        x2 = self.bert(inputs_embeds=x2)[1]
-
-        # output = self.bert(input_ids=None,
-        #     attention_mask=None,
-        #     token_type_ids=None,
-        #     position_ids=None,
-        #     head_mask=None,
-        #     inputs_embeds=x2,
-        #     output_attentions=None,
-        #     output_hidden_states=None,
-        #     return_dict=None)
-
-        # output[1]    # b, 768
-
-        # # 直接使用LSTM
-        # for i, xx in enumerate(x2):
-        #     x_lstm[i] = self.lstm_layer(xx.unsqueeze(0)).reshape(-1)
-
-        y_t = torch.empty(len(y), 3).cuda()
-        for i, y_item in enumerate(y):
-            if y_item == 0:
-                y_t[i] = torch.tensor([1, 0, 0])
-            elif y_item == 1:
-                y_t[i] = torch.tensor([0, 1, 0])
-            else:
-                y_t[i] = torch.tensor([0, 0, 1])
-
-        y_hat = self.classfication(torch.cat([x1, x2], 1))
-        # y_hat = self.classfication(x1)
-
-        # y_hat = torch.cat([y_hat, xx2], 0)
-        y_hat = self.softmax(y_hat)
-        loss = self.criterion(y_hat, y_t)
+        loss, y, y_hat = self.training_validation_step(batch, batch_idx)
 
         # logs metrics for each training_step,
         # and the average across the epoch, to the progress bar and logger
