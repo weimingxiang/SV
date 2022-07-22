@@ -25,7 +25,7 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
 import list2img
 from hyperopt import hp
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 seed_everything(2022)
 
@@ -492,7 +492,7 @@ else:
     torch.save(all_negative_list, data_dir + '/all_negative_list' + '.pt')
 
 
-my_label = "7+11channel_predict"
+my_label = "7+11channel_predict_3"
 
 logger = TensorBoardLogger(os.path.join("/home/xwm/DeepSVFilter/code", "channel_predict"), name=my_label)
 
@@ -515,11 +515,11 @@ checkpoint_callback = ModelCheckpoint(
 
 def main_train():
     config = {
-        "lr": 1e-6,
+        "lr": 7.1873e-06,
         "batch_size": 14, # 14,
         "beta1": 0.9,
         "beta2": 0.999,
-        'weight_decay': 0,
+        'weight_decay': 0.0011615,
         # "classfication_dim_stride": 20, # no use
     }
     # config = {
@@ -656,7 +656,7 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
     torch.save(analysis, "analysis.pt")
 
 
-# main_train()
+main_train()
 # # ray.init(num_cpus=12, num_gpus=3)
-ray.init()
-gan_tune()
+# ray.init()
+# gan_tune()
