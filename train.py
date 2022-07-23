@@ -25,8 +25,8 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
 import list2img
 from hyperopt import hp
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+my_label = "7+11channel_predict_11"
 seed_everything(2022)
 
 # data_dir = "../datasets/NA12878_PacBio_MtSinai/"
@@ -492,7 +492,7 @@ else:
     torch.save(all_negative_list, data_dir + '/all_negative_list' + '.pt')
 
 
-my_label = "7+11channel_predict_3"
+
 
 logger = TensorBoardLogger(os.path.join("/home/xwm/DeepSVFilter/code", "channel_predict"), name=my_label)
 
@@ -534,10 +534,10 @@ def main_train():
 
     model = IDENet(data_dir, config)
 
-    resume = "./checkpoints_predict/" + my_label + "/epoch=33-validation_mean=0.95-train_mean=0.97.ckpt"
+    # resume = "./checkpoints_predict/" + my_label + "/epoch=33-validation_mean=0.95-train_mean=0.97.ckpt"
 
     trainer = pl.Trainer(
-        max_epochs=20,
+        max_epochs=30,
         gpus=1,
         check_val_every_n_epoch=1,
         # replace_sampler_ddp=False,
