@@ -243,7 +243,7 @@ class IDENet(pl.LightningModule):
         # full_dim = range(1000 + 768, 3, -self.classfication_dim_stride) # 1000 + 768 -> 2
 
         # full_dim = [1000 + 768, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6]
-        full_dim = [1000, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6] # test
+        full_dim = [768, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6] # test
         self.classfication = resnet_attention_classfication(full_dim)
 
         self.softmax = nn.Sequential(
@@ -279,14 +279,14 @@ class IDENet(pl.LightningModule):
     def training_validation_step(self, batch, batch_idx):
         x, y = batch  # x2(length, 12)
         del batch
-        x1 = x["image"]
+        # # x1 = x["image"]
         x2 = x["list"]
 
         # x1 = self.conv2ds(x1)
 
-        x1 = self.conv2ds(x1[:, 2:3, :, :])
+        # # x1 = self.conv2ds(x1[:, 1:2, :, :])
 
-        x1 = self.resnet_model(x1)
+        # # x1 = self.resnet_model(x1)
 
         # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
 
@@ -325,7 +325,7 @@ class IDENet(pl.LightningModule):
         #     # n * 128
 
         # ===================== #
-        # x2 = self.bert(inputs_embeds=x2)[1]
+        x2 = self.bert(inputs_embeds=x2)[1]
 
         # output = self.bert(input_ids=None,
         #     attention_mask=None,
@@ -353,7 +353,7 @@ class IDENet(pl.LightningModule):
                 y_t[i] = torch.tensor([0, 0, 1])
 
         # y_hat = self.classfication(torch.cat([x1, x2], 1))
-        y_hat = self.classfication(x1) # test
+        y_hat = self.classfication(x2) # test
 
         # y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
