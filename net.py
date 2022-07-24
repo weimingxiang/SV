@@ -221,8 +221,8 @@ class IDENet(pl.LightningModule):
         # )
         # conv2d_dim = list(range(11, 3, -self.conv2d_dim_stride))
 
-        # conv2d_dim = list(range(7, 3, -1))
-        conv2d_dim = list(range(1, 3, 1)) # test
+        conv2d_dim = list(range(7, 3, -1))
+        # conv2d_dim = list(range(1, 3, 1)) # test
         conv2d_dim.append(3) # 6 -> 3
         self.conv2ds = conv2ds_sequential(conv2d_dim)
 
@@ -242,8 +242,8 @@ class IDENet(pl.LightningModule):
         # full_dim = [1000, 500, 250, 125, 62, 31, 15, 7]
         # full_dim = range(1000 + 768, 3, -self.classfication_dim_stride) # 1000 + 768 -> 2
 
-        # full_dim = [1000 + 768, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6]
-        full_dim = [768, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6] # test
+        full_dim = [1000 + 768, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6]
+        # full_dim = [1000, 768 * 2, 768, 384, 192, 96, 48, 24, 12, 6] # test
         self.classfication = resnet_attention_classfication(full_dim)
 
         self.softmax = nn.Sequential(
@@ -279,14 +279,14 @@ class IDENet(pl.LightningModule):
     def training_validation_step(self, batch, batch_idx):
         x, y = batch  # x2(length, 12)
         del batch
-        # # x1 = x["image"]
+        x1 = x["image"]
         x2 = x["list"]
 
-        # x1 = self.conv2ds(x1)
+        x1 = self.conv2ds(x1)
 
-        # # x1 = self.conv2ds(x1[:, 1:2, :, :])
+        # x1 = self.conv2ds(x1[:, 0:1, :, :]) # test
 
-        # # x1 = self.resnet_model(x1)
+        x1 = self.resnet_model(x1)
 
         # x1 = x[:, :7 * 224 * 224].reshape(-1, 7, 224, 224)
 
@@ -352,8 +352,8 @@ class IDENet(pl.LightningModule):
             else:
                 y_t[i] = torch.tensor([0, 0, 1])
 
-        # y_hat = self.classfication(torch.cat([x1, x2], 1))
-        y_hat = self.classfication(x2) # test
+        y_hat = self.classfication(torch.cat([x1, x2], 1))
+        # y_hat = self.classfication(x1) # test
 
         # y_hat = torch.cat([y_hat, xx2], 0)
         y_hat = self.softmax(y_hat)
@@ -470,12 +470,21 @@ class IDENet(pl.LightningModule):
 
         self.log('train_mean', metric['accuracy'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
-        self.log('train_macro_f1', metric['macro avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('train_weighted_f1', metric['weighted avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        # self.log('train_macro_f1', metric['macro avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_macro_pre', metric['macro avg']['precision'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_macro_re', metric['macro avg']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
-        self.log('train_0_f1', metric['0']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('train_1_f1', metric['1']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('train_2_f1', metric['2']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        # self.log('train_0_f1', metric['0']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_0_pre', metric['0']['precision'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_0_re', metric['0']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        # self.log('train_1_f1', metric['1']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_1_pre', metric['1']['precision'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_1_re', metric['1']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        # self.log('train_2_f1', metric['2']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_2_pre', metric['2']['precision'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_2_re', metric['2']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
 
     def validation_step(self, batch, batch_idx):
@@ -501,26 +510,35 @@ class IDENet(pl.LightningModule):
 
         metric = classification_report(y, y_hat, output_dict = True)
 
+
         self.log('validation_mean', metric['accuracy'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
-        self.log('validation_macro_f1', metric['macro avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('validation_weighted_f1', metric['weighted avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        # self.log('validation_macro_f1', metric['macro avg']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_macro_pre', metric['macro avg']['precision'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_macro_re', metric['macro avg']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
-        self.log('validation_0_f1', metric['0']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('validation_1_f1', metric['1']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log('validation_2_f1', metric['2']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        # self.log('train_0_f1', metric['0']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_0_pre', metric['0']['precision'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_0_re', metric['0']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        # self.log('train_1_f1', metric['1']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_1_pre', metric['1']['precision'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_1_re', metric['1']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+
+        # self.log('train_2_f1', metric['2']['f1-score'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_2_pre', metric['2']['precision'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log('validation_2_re', metric['2']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         # tune.report(validation_mean = torch.mean((y == y_hat).float()))
 
 
     def test_step(self, batch, batch_idx):
-        pass
+        return self.validation_step(batch, batch_idx)
 
     def test_epoch_end(self, output):
-        pass
+        self.validation_epoch_end(output)
 
     def prepare_data(self):
-
         train_proportion = 0.8
         input_data = ut.IdentifyDataset(self.path)
         dataset_size = len(input_data)
@@ -539,7 +557,7 @@ class IDENet(pl.LightningModule):
         return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()))
 
     def test_dataloader(self):
-        return DataLoader(dataset=self.train_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()))
+        return DataLoader(dataset=self.test_dataset, batch_size=self.batch_size, pin_memory=True, num_workers=int(cpu_count()))
 
     # @property
     # def automatic_optimization(self):
