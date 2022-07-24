@@ -26,7 +26,7 @@ import list2img
 from hyperopt import hp
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
-my_label = "7+11channel_predict_11"
+my_label = "7+11channel_predict_18"
 seed_everything(2022)
 
 # data_dir = "../datasets/NA12878_PacBio_MtSinai/"
@@ -502,7 +502,7 @@ checkpoint_callback = ModelCheckpoint(
     monitor="validation_loss",
     verbose=False,
     save_last=None,
-    save_top_k=5,
+    save_top_k=1,
     # save_weights_only=True,
     mode="min",
     auto_insert_metric_name=True,
