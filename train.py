@@ -24,9 +24,9 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
     TuneReportCheckpointCallback
 import list2img
 from hyperopt import hp
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
-my_label = "7+11channel_predict_18"
+num_cuda = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = num_cuda
+my_label = "7+11channel_predict_all"
 seed_everything(2022)
 
 # data_dir = "../datasets/NA12878_PacBio_MtSinai/"
@@ -499,12 +499,12 @@ logger = TensorBoardLogger(os.path.join("/home/xwm/DeepSVFilter/code", "channel_
 checkpoint_callback = ModelCheckpoint(
     dirpath="./checkpoints_predict/" + my_label,
     filename='{epoch:02d}-{validation_mean:.2f}-{train_mean:.2f}',
-    monitor="validation_loss",
+    monitor="validation_mean",
     verbose=False,
     save_last=None,
     save_top_k=1,
     # save_weights_only=True,
-    mode="min",
+    mode="max",
     auto_insert_metric_name=True,
     every_n_train_steps=None,
     train_time_interval=None,
@@ -560,16 +560,16 @@ def train_tune(config, checkpoint_dir=None, num_epochs=200, num_gpus=1):
         check_val_every_n_epoch=1,
         logger=logger,
         # progress_bar_refresh_rate=0,
-        # callbacks=[checkpoint_callback],
-        callbacks = TuneReportCallback(
-        {
-            "validation_loss": "validation_loss",
-            "validation_0_f1": "validation_0_f1",
-            "validation_1_f1": "validation_1_f1",
-            "validation_2_f1": "validation_2_f1",
-            "validation_mean": "validation_mean",
-        },
-        on="validation_end"),
+        callbacks=[checkpoint_callback],
+        # callbacks = TuneReportCallback(
+        # {
+        #     "validation_loss": "validation_loss",
+        #     "validation_0_f1": "validation_0_f1",
+        #     "validation_1_f1": "validation_1_f1",
+        #     "validation_2_f1": "validation_2_f1",
+        #     "validation_mean": "validation_mean",
+        # },
+        # on="validation_end"),
         # auto_scale_batch_size="binsearch",
     )
     trainer.fit(model)
@@ -604,14 +604,22 @@ class MyStopper(tune.Stopper):
 #     return result["validation_mean"] <= 0.343
 
 def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
+    # config = {
+    #     "lr": tune.loguniform(1e-7, 1e-5),
+    #     "batch_size": 14,
+    #     "beta1": 0.9, # tune.uniform(0.895, 0.905),
+    #     "beta2": 0.999, # tune.uniform(0.9989, 0.9991),
+    #     'weight_decay': tune.uniform(0, 0.01),
+    #     # "conv2d_dim_stride": tune.lograndint(1, 6),
+    #     # "classfication_dim_stride": tune.lograndint(20, 700),
+    # }
     config = {
-        "lr": tune.loguniform(1e-7, 1e-5),
         "batch_size": 14,
-        "beta1": 0.9, # tune.uniform(0.895, 0.905),
-        "beta2": 0.999, # tune.uniform(0.9989, 0.9991),
-        'weight_decay': tune.uniform(0, 0.01),
-        # "conv2d_dim_stride": tune.lograndint(1, 6),
-        # "classfication_dim_stride": tune.lograndint(20, 700),
+        "beta1": 0.9,
+        "beta2": 0.999,
+        "lr": 7.187267009530772e-06,
+        "weight_decay": 0.0011614665567890423
+        # "classfication_dim_stride": 20, # no use
     }
 
     bayesopt = HyperOptSearch(config, metric="validation_mean", mode="max")
@@ -619,15 +627,13 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
 
     scheduler = ASHAScheduler(
         max_t=num_epochs,
-        metric='validation_mean',
-        mode='max',
         grace_period=1,
         reduction_factor=2,
         )
 
     reporter = CLIReporter(
-        parameter_columns=["lr", 'weight_decay'],
-        metric_columns=['train_loss', "train_mean", 'validation_loss', "validation_mean"])
+        metric_columns=['train_loss', "train_mean", 'validation_loss', "validation_mean"]
+        )
 
     analysis = tune.run(
         tune.with_parameters(
@@ -640,10 +646,10 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
             "gpu": 1,
         },
         # stop = MyStopper("validation_mean", value = 0.343, epoch = 1),
-        # config=config,
+        config=config,
         num_samples=num_samples,
-        # metric='validation_mean',
-        # mode='max',
+        metric='validation_mean',
+        mode='max',
         scheduler=scheduler,
         progress_reporter=reporter,
         resume="AUTO",
@@ -651,12 +657,11 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
         max_failures = -1,
         reuse_actors = True,
         # server_port = 60060,
-        name="tune_lr_asha")
-
-    torch.save(analysis, "analysis.pt")
+        name="tune" + num_cuda)
 
 
-main_train()
+
+# main_train()
 # # ray.init(num_cpus=12, num_gpus=3)
-# ray.init()
-# gan_tune()
+ray.init()
+gan_tune()
