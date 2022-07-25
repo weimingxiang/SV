@@ -117,3 +117,153 @@ ray.tune.error.TuneError: Trial raised an exception. Traceback:
     return 0.5 * input * (1.0 + torch.tanh(math.sqrt(2.0 / math.pi) * (input + 0.044715 * torch.pow(input, 3.0))))
 RuntimeError: CUDA out of memory. Tried to allocate 84.00 MiB (GPU 0; 15.78 GiB total capacity; 14.10 GiB already allocated; 77.50 MiB free; 14.27 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
 
+Failure # 2 (occurred at 2022-07-25_11-10-17)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=53397, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=53397, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "<ipython-input-8-797bc33ac026>", line 10, in train_tune
+NameError: name 'logger' is not defined
+
+Failure # 3 (occurred at 2022-07-25_11-10-37)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=53378, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=53378, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "<ipython-input-8-797bc33ac026>", line 10, in train_tune
+NameError: name 'logger' is not defined
+
+Failure # 4 (occurred at 2022-07-25_11-11-06)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=53386, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=53386, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "<ipython-input-8-797bc33ac026>", line 10, in train_tune
+NameError: name 'logger' is not defined
+
+Failure # 5 (occurred at 2022-07-25_11-11-37)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=53381, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=53381, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "<ipython-input-8-797bc33ac026>", line 10, in train_tune
+NameError: name 'logger' is not defined
+
+Failure # 6 (occurred at 2022-07-25_11-12-00)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 886, in _process_trial
+    results = self.trial_executor.fetch_result(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 675, in fetch_result
+    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/_private/client_mode_hook.py", line 105, in wrapper
+    return func(*args, **kwargs)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/worker.py", line 1763, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(TuneError): [36mray::ImplicitFunc.train()[39m (pid=53387, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trainable.py", line 319, in train
+    result = self.step()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 381, in step
+    self._report_thread_runner_error(block=True)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 532, in _report_thread_runner_error
+    ("Trial raised an exception. Traceback:\n{}".format(err_tb_str)
+ray.tune.error.TuneError: Trial raised an exception. Traceback:
+[36mray::ImplicitFunc.train()[39m (pid=53387, ip=192.168.249.74, repr=train_tune)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 262, in run
+    self._entrypoint()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 331, in entrypoint
+    self._status_reporter.get_checkpoint())
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/function_runner.py", line 600, in _trainable_func
+    output = fn()
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/utils/trainable.py", line 371, in inner
+    trainable(config, **fn_kwargs)
+  File "<ipython-input-8-797bc33ac026>", line 10, in train_tune
+NameError: name 'logger' is not defined
+
