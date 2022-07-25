@@ -11,7 +11,7 @@
     "_max_pending_trials": 1,
     "_metric": "validation_mean",
     "_total_time": 0,
-    "_iteration": 19437,
+    "_iteration": 25767,
     "_has_errored": false,
     "_fail_fast": false,
     "_server_port": null,
@@ -36,6 +36,6 @@
   },
   "stats": {
     "start_time": 1658761604.2462082,
-    "timestamp": 1658781061.618609
+    "timestamp": 1658787430.3422358
   }
 }
