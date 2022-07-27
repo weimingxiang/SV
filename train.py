@@ -24,7 +24,7 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
     TuneReportCheckpointCallback
 import list2img
 from hyperopt import hp
-num_cuda = "2"
+num_cuda = "3"
 os.environ["CUDA_VISIBLE_DEVICES"] = num_cuda
 my_label = "7+11channel_predict_all"
 seed_everything(2022)
@@ -479,8 +479,8 @@ else:
         all_negative_list = torch.cat((all_negative_list, negative_img_i), 0)
 
 
-    all_ins_img = torch.cat([all_ins_img, all_ins_img_mid, all_ins_cigar_img], 1) # 3, 3, 3
-    all_del_img = torch.cat([all_del_img, all_del_img_mid, all_del_cigar_img], 1) # 3, 3, 3
+    all_ins_img = torch.cat([all_ins_img, all_ins_img_mid, all_ins_cigar_img], 1) # 3, 4, 3
+    all_del_img = torch.cat([all_del_img, all_del_img_mid, all_del_cigar_img], 1) # 3, 4, 3
     all_n_img = torch.cat([all_negative_img, all_negative_img_mid, all_negative_cigar_img], 1)
 
     torch.save(all_ins_img, data_dir + '/all_ins_img' + '.pt')
