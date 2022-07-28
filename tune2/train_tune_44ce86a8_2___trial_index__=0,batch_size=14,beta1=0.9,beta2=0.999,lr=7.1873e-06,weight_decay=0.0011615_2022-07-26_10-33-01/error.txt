@@ -1,0 +1,10 @@
+Failure # 1 (occurred at 2022-07-28_03-00-04)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 894, in _process_trial
+    decision = self._process_trial_result(trial, result)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 938, in _process_trial_result
+    self._validate_result_metrics(flat_result)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 1034, in _validate_result_metrics
+    report_metric, location, result))
+ValueError: Trial returned a result which did not include the specified metric(s) `validation_mean` that `tune.run()` expects. Make sure your calls to `tune.report()` include the metric, or set the TUNE_DISABLE_STRICT_METRIC_CHECKING environment variable to 1. Result: {'trial_id': '44ce86a8', 'experiment_id': 'ec34b0c3700d4887882f444e628b5a49', 'date': '2022-07-27_06-53-25', 'timestamp': 1658876005, 'pid': 27169, 'hostname': 'localhost.localdomain', 'node_ip': '192.168.249.74', 'done': True, 'config/batch_size': 14, 'config/beta1': 0.9, 'config/beta2': 0.999, 'config/lr': 7.187267009530772e-06, 'config/weight_decay': 0.0011614665567890423, 'config/__trial_index__': 0}
+
