@@ -104,7 +104,7 @@ class resnet_attention_classfication(nn.Module):
             nn.Sequential(
                 nn.Linear(full_dim[2 * index], full_dim[2 * (index + 1)]),
                 nn.ReLU(inplace=True),
-            ) for index in range(int(len(full_dim) / 2) - 1)
+            ) for index in range(int((len(full_dim) - 1) / 2))
         )
 
     def forward(self,x):
@@ -530,6 +530,8 @@ class IDENet(pl.LightningModule):
         self.log('validation_2_re', metric['2']['recall'], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         # tune.report(validation_mean = torch.mean((y == y_hat).float()))
+        tune.report(validation_mean = metric['accuracy'])
+
 
 
     def test_step(self, batch, batch_idx):

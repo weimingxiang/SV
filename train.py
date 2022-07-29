@@ -24,7 +24,7 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
     TuneReportCheckpointCallback
 import list2img
 from hyperopt import hp
-num_cuda = "3"
+num_cuda = "2"
 os.environ["CUDA_VISIBLE_DEVICES"] = num_cuda
 my_label = "7+11channel_predict_all"
 seed_everything(2022)
