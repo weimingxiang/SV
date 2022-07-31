@@ -119,3 +119,13 @@ ray.tune.error.TuneError: Trial raised an exception. Traceback:
     return 0.5 * input * (1.0 + torch.tanh(math.sqrt(2.0 / math.pi) * (input + 0.044715 * torch.pow(input, 3.0))))
 RuntimeError: CUDA out of memory. Tried to allocate 84.00 MiB (GPU 0; 15.78 GiB total capacity; 14.19 GiB already allocated; 11.50 MiB free; 14.34 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
 
+Failure # 2 (occurred at 2022-07-31_02-04-24)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 549, in start_trial
+    return self._start_trial(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 447, in _start_trial
+    runner = self._setup_remote_runner(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 301, in _setup_remote_runner
+    "Trainable runner reuse requires reset_config() to be "
+ray.tune.error.AbortTrialExecution: Trainable runner reuse requires reset_config() to be implemented and return True.
+
