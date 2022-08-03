@@ -25,6 +25,7 @@ from ray.tune.integration.pytorch_lightning import TuneReportCallback, \
 import list2img
 from hyperopt import hp
 num_cuda = "2"
+bs = 14
 os.environ["CUDA_VISIBLE_DEVICES"] = num_cuda
 my_label = "7+11channel_predict_all"
 seed_everything(2022)
@@ -614,7 +615,7 @@ def gan_tune(num_samples=-1, num_epochs=30, gpus_per_trial=1):
     #     # "classfication_dim_stride": tune.lograndint(20, 700),
     # }
     config = {
-        "batch_size": 14,
+        "batch_size": bs,
         "beta1": 0.9,
         "beta2": 0.999,
         "lr": 7.187267009530772e-06,
