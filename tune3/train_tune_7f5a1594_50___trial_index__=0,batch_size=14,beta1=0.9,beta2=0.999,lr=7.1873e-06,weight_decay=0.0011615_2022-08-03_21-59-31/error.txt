@@ -1,0 +1,10 @@
+Failure # 1 (occurred at 2022-08-03_21-59-41)
+Traceback (most recent call last):
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 549, in start_trial
+    return self._start_trial(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 447, in _start_trial
+    runner = self._setup_remote_runner(trial)
+  File "/home/xwm/anaconda3/envs/SV/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 301, in _setup_remote_runner
+    "Trainable runner reuse requires reset_config() to be "
+ray.tune.error.AbortTrialExecution: Trainable runner reuse requires reset_config() to be implemented and return True.
+
